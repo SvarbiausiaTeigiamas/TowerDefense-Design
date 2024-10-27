@@ -82,7 +82,7 @@ namespace TowerDefense.Api.GameLogic.Handlers
             return newPlayer;
         }
 
-        InitialGameSetupHandler ICloneable<InitialGameSetupHandler>.Clone()
+        public InitialGameSetupHandler Clone()
         {
             return new InitialGameSetupHandler(this._notificationHub);
         }
