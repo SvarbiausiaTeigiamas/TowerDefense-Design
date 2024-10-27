@@ -7,15 +7,6 @@ namespace TowerDefense.Api.GameLogic.Handlers
         Task TryEndTurn(string playerName);
     }
 
-
-    // Let's say, hypothetically, we want to create a copy of the TurnHandler - maybe for tests.
-    // ICloneable interface allows us to do that - Prototype design pattern.
-    // Couldn't find another place where this pattern could be more useful.
-    public interface ICloneable<T>
-    {
-        T Clone();
-    }
-
     public class TurnHandler : ITurnHandler, ICloneable<TurnHandler>
     {
         private readonly State _gameState;
