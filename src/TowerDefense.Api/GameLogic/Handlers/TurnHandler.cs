@@ -7,7 +7,7 @@ namespace TowerDefense.Api.GameLogic.Handlers
         Task TryEndTurn(string playerName);
     }
 
-    public class TurnHandler : ITurnHandler
+    public class TurnHandler : ITurnHandler, ICloneable<TurnHandler>
     {
         private readonly State _gameState;
         private readonly IBattleHandler _battleHandler;
@@ -16,6 +16,11 @@ namespace TowerDefense.Api.GameLogic.Handlers
         {
             _gameState = GameOriginator.GameState;
             _battleHandler = battleHandler;
+        }
+
+        public TurnHandler Clone()
+        {
+            return new TurnHandler(this._battleHandler);
         }
 
         public async Task TryEndTurn(string playerName)

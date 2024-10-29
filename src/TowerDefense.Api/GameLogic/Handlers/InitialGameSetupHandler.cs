@@ -18,7 +18,7 @@ namespace TowerDefense.Api.GameLogic.Handlers
         Task TryStartGame();
     }
 
-    public class InitialGameSetupHandler : IInitialGameSetupHandler
+    public class InitialGameSetupHandler : IInitialGameSetupHandler, ICloneable<InitialGameSetupHandler>
     {
         private readonly State _gameState;
         private readonly INotificationHub _notificationHub;
@@ -81,5 +81,11 @@ namespace TowerDefense.Api.GameLogic.Handlers
 
             return newPlayer;
         }
+
+        public InitialGameSetupHandler Clone()
+        {
+            return new InitialGameSetupHandler(this._notificationHub);
+        }
     }
 }
+    
