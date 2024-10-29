@@ -3,6 +3,8 @@ using TowerDefense.Api.Bootstrap.AutoMapper;
 using TowerDefense.Api.Constants;
 using TowerDefense.Api.Hubs;
 
+LoggerManager.Instance.LogInfo("Starting the application");
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -29,12 +31,16 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+LoggerManager.Instance.LogInfo("WebApp was built");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+LoggerManager.Instance.LogInfo("Configured HTTP request pipeline");
 
 
 app.UseCors(Policy.DevelopmentCors);
@@ -45,4 +51,5 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<GameHub>("api/gameHub");
 
+LoggerManager.Instance.LogInfo("Running the app");
 app.Run();

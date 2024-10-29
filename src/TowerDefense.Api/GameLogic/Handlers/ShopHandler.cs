@@ -31,10 +31,16 @@ namespace TowerDefense.Api.GameLogic.Handlers
             var player = _gameState.Players.First(player => player.Name == playerName);
             var item = player.Shop.Items.First(item => item.Id == identifier);
 
-            if (item == null) return false;
+            if (item == null) {
+                LoggerManager.Instance.LogError($"Item of id {item.Id} was null");
+                return false;
+            } 
 
             var isAbleToAfford = item.Stats.Price < player.Money;
-            if (!isAbleToAfford) return false;
+            if (!isAbleToAfford) {
+                LoggerManager.Instance.LogError($"Failed to affort item of id {item.Id}");
+                return false;
+            }
 
             player.Money -= item.Stats.Price;
 
