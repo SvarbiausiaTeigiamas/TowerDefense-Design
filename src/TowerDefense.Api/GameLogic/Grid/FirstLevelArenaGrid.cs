@@ -6,16 +6,8 @@ namespace TowerDefense.Api.GameLogic.Grid
 
         public FirstLevelArenaGrid()
         {
-            const string gridLayout = @"33333333
-                                        33333333
-                                        33333333
-                                        33333333
-                                        33333333
-                                        33333333
-                                        33333333
-                                        33333333
-                                        33333333";
-
+            IGridLayout layoutAdapter = GridLayoutFactory.CreateLayout();
+            string gridLayout = layoutAdapter.GetFormattedLayout();
             GridItems.CreateGrid(gridLayout);
         }
     }
