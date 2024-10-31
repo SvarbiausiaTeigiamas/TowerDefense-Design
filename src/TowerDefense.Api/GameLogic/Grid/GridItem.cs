@@ -38,9 +38,8 @@ namespace TowerDefense.Api.GameLogic.Grid
             {
                 damage = new ExplosionDecorator(damage);
             }
-
             // 30% chance to make it critical
-            if (_random.NextDouble() <= CRITICAL_CHANCE)
+            else if (_random.NextDouble() <= CRITICAL_CHANCE)
             {
                 damage = new CriticalDamageDecorator(damage);
             }
