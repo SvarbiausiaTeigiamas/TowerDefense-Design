@@ -2,11 +2,6 @@
 
 namespace TowerDefense.Api.GameLogic.Grid
 {
-    public class GridLayoutJson
-    {
-        public string Layout { get; set; }
-    }
-
     public class JsonLayout
     {
         public string Layout { get; set; }
@@ -16,8 +11,8 @@ namespace TowerDefense.Api.GameLogic.Grid
             if (File.Exists(jsonFilePath))
             {
                 var jsonContent = File.ReadAllText(jsonFilePath);
-                var layoutObject = JsonSerializer.Deserialize<GridLayoutJson>(jsonContent);
-                Layout = layoutObject.Layout;
+                var array = JsonSerializer.Deserialize<int[][]>(jsonContent);
+                Layout = string.Join("\n", array.Select(row => string.Join("", row)));
             }
         }
     }

@@ -2,7 +2,7 @@
 {
     public class GridLayoutFactory
     {
-        public static IGridLayout CreateLayout(string jsonFilePath = "layout.json")
+        public static IGridLayout CreateLayout(string jsonFilePath = "GameLogic/Grid/layout.json")
         {
             var jsonAdapter = new JsonLayoutAdapter(jsonFilePath);
             if (jsonAdapter.GetFormattedLayout() != null)
