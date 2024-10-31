@@ -7,9 +7,14 @@
             var jsonAdapter = new JsonLayoutAdapter(jsonFilePath);
             if (jsonAdapter.GetFormattedLayout() != null)
             {
+                LoggerManager.Instance.LogInfo("Using Json Layout!!!!");
                 return jsonAdapter;
             }
-            return new ConstantLayoutAdapter();
+            else
+            {
+                LoggerManager.Instance.LogInfo("Using Constant Layout!!!!");
+                return new ConstantLayoutAdapter();
+            }
         }
     }
 }
