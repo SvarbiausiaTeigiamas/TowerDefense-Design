@@ -3,6 +3,7 @@ using TowerDefense.Api.GameLogic.Grid;
 using TowerDefense.Api.GameLogic.PerkStorage;
 using TowerDefense.Api.GameLogic.Player;
 using TowerDefense.Api.GameLogic.Shop;
+using TowerDefense.Api.GameLogic.Strategies;
 using TowerDefense.Api.Hubs;
 
 namespace TowerDefense.Api.GameLogic.Handlers
@@ -18,7 +19,9 @@ namespace TowerDefense.Api.GameLogic.Handlers
         Task TryStartGame();
     }
 
-    public class InitialGameSetupHandler : IInitialGameSetupHandler, ICloneable<InitialGameSetupHandler>
+    public class InitialGameSetupHandler
+        : IInitialGameSetupHandler,
+            ICloneable<InitialGameSetupHandler>
     {
         private readonly State _gameState;
         private readonly INotificationHub _notificationHub;
@@ -28,12 +31,14 @@ namespace TowerDefense.Api.GameLogic.Handlers
             _gameState = GameOriginator.GameState;
             _notificationHub = notificationHub;
         }
+
         public IPlayer AddNewPlayer(string playerName)
         {
             var player = AddPlayerToGame(playerName);
             SetArenaGridForPlayer(player);
             SetShopForPlayer(player);
             SetPerkStorageForPlayer(player);
+
             return player;
         }
 
@@ -45,7 +50,8 @@ namespace TowerDefense.Api.GameLogic.Handlers
 
         public async Task TryStartGame()
         {
-            if (_gameState.ActivePlayers != Constants.TowerDefense.MaxNumberOfPlayers) return;
+            if (_gameState.ActivePlayers != Constants.TowerDefense.MaxNumberOfPlayers)
+                return;
 
             await _notificationHub.NotifyGameStart(_gameState.Players[0], _gameState.Players[1]);
         }
@@ -58,8 +64,17 @@ namespace TowerDefense.Api.GameLogic.Handlers
 
         public void SetShopForPlayer(IPlayer player)
         {
-            var shop = new FirstLevelShop();
+            var discountPercentage = 10; // 10% discount
+            var pricingStrategy = new DiscountPricingStrategy(discountPercentage);
+            var shop = new FirstLevelShop(pricingStrategy);
             player.Shop = shop;
+
+            // Update the price of each item in the shop
+            foreach (var item in player.Shop.Items)
+            {
+                item.Stats.Price = pricingStrategy.GetPrice(item);
+                Console.WriteLine($"Item: {item.Id}, New Price: {item.Stats.Price}");
+            }
         }
 
         public void SetPerkStorageForPlayer(IPlayer player)
@@ -72,7 +87,7 @@ namespace TowerDefense.Api.GameLogic.Handlers
         {
             if (_gameState.ActivePlayers == Constants.TowerDefense.MaxNumberOfPlayers)
             {
-                throw new ArgumentException();
+                throw new ArgumentException("The maximum number of players has been reached.");
             }
 
             var currentNewPlayerId = _gameState.ActivePlayers;
@@ -88,4 +103,3 @@ namespace TowerDefense.Api.GameLogic.Handlers
         }
     }
 }
-    

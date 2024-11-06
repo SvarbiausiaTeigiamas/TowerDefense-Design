@@ -3,7 +3,7 @@ using TowerDefense.Api.GameLogic.GameState;
 namespace TowerDefense.Api.GameLogic.Handlers
 {
     public interface ITurnHandler
-    {   
+    {
         Task TryEndTurn(string playerName);
     }
 
@@ -25,10 +25,11 @@ namespace TowerDefense.Api.GameLogic.Handlers
 
         public async Task TryEndTurn(string playerName)
         {
-            if (_gameState.PlayersFinishedTurn.ContainsKey(playerName)) return;
-            _gameState.PlayersFinishedTurn.Add(playerName, true);
+            if (!_gameState.PlayersFinishedTurn.TryAdd(playerName, true))
+                return;
 
-            if (_gameState.PlayersFinishedTurn.Count != Constants.TowerDefense.MaxNumberOfPlayers) return;
+            if (_gameState.PlayersFinishedTurn.Count != Constants.TowerDefense.MaxNumberOfPlayers)
+                return;
 
             await _battleHandler.HandleEndTurn();
 
