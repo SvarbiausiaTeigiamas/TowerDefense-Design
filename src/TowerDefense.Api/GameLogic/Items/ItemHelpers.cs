@@ -5,17 +5,23 @@ namespace TowerDefense.Api.GameLogic.Items
 {
     public static class ItemHelpers
     {
+        private static readonly Dictionary<ItemType, IItemCreator> ItemCreators = new()
+        {
+            { ItemType.Blank, new BlankItemCreator() },
+            { ItemType.Plane, new PlaneItemCreator() },
+            { ItemType.Rockets, new RocketsItemCreator() },
+            { ItemType.Shield, new ShieldItemCreator() },
+            { ItemType.Placeholder, new PlaceholderItemCreator() }
+        };
+
         public static IItem CreateItemByType(ItemType item)
         {
-            return item switch
+            if (ItemCreators.TryGetValue(item, out var creator))
             {
-                ItemType.Blank => new Blank(),
-                ItemType.Plane => new Plane(),
-                ItemType.Rockets => new Rockets(),
-                ItemType.Shield => new Shield(),
-                ItemType.Placeholder => new Placeholder(),
-                _ => throw new ArgumentOutOfRangeException()
-            };
+                return creator.CreateItem();
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(item), item, null);
         }
         public static int GetAttackingItemRowId(int attackingGridItemId)
         {
