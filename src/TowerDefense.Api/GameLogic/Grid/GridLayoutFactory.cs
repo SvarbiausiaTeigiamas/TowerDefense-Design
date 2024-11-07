@@ -10,6 +10,10 @@
             LoggerManager.Instance.LogInfo($"Using {layout.GetType().Name}");
             return layout;
         }
+
+        // Static factory instance for default usage
+        private static readonly GridLayoutFactory DefaultFactory = new JsonGridLayoutFactory();
+        public static GridLayoutFactory Instance => DefaultFactory;
     }
 
     // Concrete Creators

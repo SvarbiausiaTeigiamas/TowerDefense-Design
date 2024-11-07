@@ -3,10 +3,14 @@ namespace TowerDefense.Api.GameLogic.Grid
     public class FirstLevelArenaGrid : IArenaGrid
     {
         public GridItem[] GridItems { get; set; } = new GridItem[Constants.TowerDefense.MaxGridGridItemsForPlayer];
-
         private readonly GridLayoutFactory _layoutFactory;
 
-        // Constructor injection for better testability and flexibility
+        // Default constructor for backward compatibility
+        public FirstLevelArenaGrid() : this(GridLayoutFactory.Instance)
+        {
+        }
+
+        // Constructor injection for testability
         public FirstLevelArenaGrid(GridLayoutFactory layoutFactory)
         {
             _layoutFactory = layoutFactory;
