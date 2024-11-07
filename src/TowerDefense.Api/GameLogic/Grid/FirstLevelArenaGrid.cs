@@ -4,9 +4,18 @@ namespace TowerDefense.Api.GameLogic.Grid
     {
         public GridItem[] GridItems { get; set; } = new GridItem[Constants.TowerDefense.MaxGridGridItemsForPlayer];
 
-        public FirstLevelArenaGrid()
+        private readonly GridLayoutFactory _layoutFactory;
+
+        // Constructor injection for better testability and flexibility
+        public FirstLevelArenaGrid(GridLayoutFactory layoutFactory)
         {
-            IGridLayout layoutAdapter = GridLayoutFactory.CreateLayout();
+            _layoutFactory = layoutFactory;
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            IGridLayout layoutAdapter = _layoutFactory.GetLayout();
             string gridLayout = layoutAdapter.GetFormattedLayout();
             GridItems.CreateGrid(gridLayout);
         }

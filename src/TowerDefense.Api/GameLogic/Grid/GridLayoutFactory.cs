@@ -1,20 +1,39 @@
 ﻿namespace TowerDefense.Api.GameLogic.Grid
 {
-    public class GridLayoutFactory
+    public abstract class GridLayoutFactory
     {
-        public static IGridLayout CreateLayout(string jsonFilePath = "GameLogic/Grid/layout.json")
+        protected abstract IGridLayout CreateLayoutAdapter();
+
+        public IGridLayout GetLayout()
         {
-            var jsonAdapter = new JsonLayoutAdapter(jsonFilePath);
-            if (jsonAdapter.GetFormattedLayout() != null)
-            {
-                LoggerManager.Instance.LogInfo("Using Json Layout!!!!");
-                return jsonAdapter;
-            }
-            else
-            {
-                LoggerManager.Instance.LogInfo("Using Constant Layout!!!!");
-                return new ConstantLayoutAdapter();
-            }
+            var layout = CreateLayoutAdapter();
+            LoggerManager.Instance.LogInfo($"Using {layout.GetType().Name}");
+            return layout;
+        }
+    }
+
+    // Concrete Creators
+    public class JsonGridLayoutFactory : GridLayoutFactory
+    {
+        private readonly string _jsonFilePath;
+
+        public JsonGridLayoutFactory(string jsonFilePath = "GameLogic/Grid/layout.json")
+        {
+            _jsonFilePath = jsonFilePath;
+        }
+
+        protected override IGridLayout CreateLayoutAdapter()
+        {
+            var adapter = new JsonLayoutAdapter(_jsonFilePath);
+            return adapter.GetFormattedLayout() != null ? adapter : new ConstantLayoutAdapter();
+        }
+    }
+
+    public class ConstantGridLayoutFactory : GridLayoutFactory
+    {
+        protected override IGridLayout CreateLayoutAdapter()
+        {
+            return new ConstantLayoutAdapter();
         }
     }
 }
