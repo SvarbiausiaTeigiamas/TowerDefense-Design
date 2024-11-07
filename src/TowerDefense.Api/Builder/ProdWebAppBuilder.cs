@@ -5,7 +5,7 @@ using TowerDefense.Api.Constants;
 using TowerDefense.Api.Hubs;
 
 namespace TowerDefense.Api.Builder {
-public class ProdWebAppBuilder : IWebAppBuilder
+    public class ProdWebAppBuilder : IWebAppBuilder
     {
         private readonly WebApplicationBuilder _builder;
         private WebApplication _app;
