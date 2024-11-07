@@ -1,34 +1,35 @@
+using TowerDefense.Api.GameLogic.Commands;
 using TowerDefense.Api.GameLogic.GameState;
 using TowerDefense.Api.GameLogic.Player;
 using TowerDefense.Api.Hubs;
+using System.Collections.Generic;
 
-namespace TowerDefense.Api.GameLogic.Handlers
+namespace TowerDefense.Api.GameLogic.Handlers;
+
+public interface IGameHandler
 {
-    public interface IGameHandler
+    Task ResetGame();
+    Task FinishGame(IPlayer winnerPlayer);
+}
+
+class GameHandler : IGameHandler
+{
+    private readonly INotificationHub _notificationHub;
+
+    public GameHandler(INotificationHub notificationHub)
     {
-        Task ResetGame();
-        Task FinishGame(IPlayer winnerPlayer);
+        _notificationHub = notificationHub;
     }
 
-    class GameHandler : IGameHandler
+    public async Task ResetGame()
     {
-        private readonly INotificationHub _notificationHub;
+        var resetGameCommand = new ResetGameCommand(_notificationHub);
+        await resetGameCommand.Execute();
+    }
 
-        public GameHandler(INotificationHub notificationHub)
-        {
-            _notificationHub = notificationHub;
-        }
-
-        public async Task ResetGame()
-        {
-            await _notificationHub.ResetGame();
-            GameOriginator.GameState = new State();
-        }
-
-        public async Task FinishGame(IPlayer winnerPlayer)
-        {
-            await _notificationHub.NotifyGameFinished(winnerPlayer);
-            GameOriginator.GameState = new State();
-        }
+    public async Task FinishGame(IPlayer winnerPlayer)
+    {
+        var finishGameCommand = new FinishGameCommand(_notificationHub, winnerPlayer);
+        await finishGameCommand.Execute();
     }
 }

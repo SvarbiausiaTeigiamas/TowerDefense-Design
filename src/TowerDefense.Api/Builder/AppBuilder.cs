@@ -27,6 +27,13 @@ public class AppBuilder
         return this;
     }
 
+    public AppBuilder AddSwagger()
+    {
+        _builder.Services.AddSwaggerGen();
+        _builder.Services.AddEndpointsApiExplorer();    
+        return this;
+    }
+
     public AppBuilder SetupGameEngine()
     {
         _builder.Services.SetupGameEngine();

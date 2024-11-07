@@ -8,6 +8,7 @@ public class Program
         var app = appBuilder
             .AddControllers()
             .AddSignalR()
+            .AddSwagger()
             .SetupGameEngine()
             .SetupAutoMapper()
             .AddCorsPolicy()
