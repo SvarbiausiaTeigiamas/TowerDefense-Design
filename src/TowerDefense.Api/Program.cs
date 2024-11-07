@@ -1,19 +1,10 @@
-public class Program
-{
+using TowerDefense.Api.Builder;
+
+class Program {
     public static void Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
-
-        var appBuilder = new AppBuilder(builder);
-        var app = appBuilder
-            .AddControllers()
-            .AddSignalR()
-            .AddSwagger()
-            .SetupGameEngine()
-            .SetupAutoMapper()
-            .AddCorsPolicy()
-            .Build();
-
+        var appDirector = new AppDirector(new TestWebAppBuilder(args));
+        var app = appDirector.ConstructApp();
         app.Run();
     }
 }
