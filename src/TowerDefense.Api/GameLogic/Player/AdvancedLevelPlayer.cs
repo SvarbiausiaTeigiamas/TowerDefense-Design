@@ -4,7 +4,7 @@ using TowerDefense.Api.GameLogic.Shop;
 
 namespace TowerDefense.Api.GameLogic.Player
 {
-    public class FirstLevelPlayer : IPlayer
+    public class AdvancedLevelPlayer : IPlayer
     {
         public string ConnectionId { get; set; }
         public string Name { get; set; }
@@ -16,7 +16,7 @@ namespace TowerDefense.Api.GameLogic.Player
         public IShop Shop { get; set; } = null;
         public IPerkStorage PerkStorage { get; set; } = null;
 
-        public FirstLevelPlayer(string name)
+        public AdvancedLevelPlayer(string name)
         {
             Name = name;
         }

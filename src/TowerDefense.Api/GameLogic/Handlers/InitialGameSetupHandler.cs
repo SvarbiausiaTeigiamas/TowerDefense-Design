@@ -91,7 +91,7 @@ namespace TowerDefense.Api.GameLogic.Handlers
             }
 
             var currentNewPlayerId = _gameState.ActivePlayers;
-            var newPlayer = new FirstLevelPlayer { Name = playerName };
+            var newPlayer = new FirstLevelPlayer(playerName);
             _gameState.Players[currentNewPlayerId] = newPlayer;
 
             return newPlayer;
