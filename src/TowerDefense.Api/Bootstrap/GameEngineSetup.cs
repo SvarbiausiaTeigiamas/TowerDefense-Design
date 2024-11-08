@@ -1,3 +1,4 @@
+using TowerDefense.Api.GameLogic;
 using TowerDefense.Api.GameLogic.Handlers;
 using TowerDefense.Api.Hubs;
 
@@ -18,6 +19,8 @@ namespace TowerDefense.Api.Bootstrap
             serviceCollection.AddTransient<IAttackHandler, AttackHandler>();
             serviceCollection.AddTransient<IGameHandler, GameHandler>();
             serviceCollection.AddTransient<IPerkHandler, PerkHandler>();
+
+            serviceCollection.AddTransient<GameFacade>();
         }
     }
 }

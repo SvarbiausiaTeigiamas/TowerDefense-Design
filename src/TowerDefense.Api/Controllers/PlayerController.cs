@@ -4,6 +4,7 @@ using TowerDefense.Api.GameLogic.Handlers;
 using TowerDefense.Api.Contracts.Player;
 using TowerDefense.Api.Contracts.Turn;
 using TowerDefense.Api.Contracts.Command;
+using TowerDefense.Api.GameLogic;
 
 namespace TowerDefense.Api.Controllers
 {
@@ -11,29 +12,18 @@ namespace TowerDefense.Api.Controllers
     [ApiController]
     public class PlayerController : ControllerBase
     {
-        private readonly IInitialGameSetupHandler _initialGameSetupHandler;
-        private readonly IPlayerHandler _playerHandler;
+        private readonly GameFacade _gameFacade;
         private readonly IMapper _mapper;
-        private readonly IGameHandler _gameHandler;
-        private readonly ITurnHandler _turnHandler;
-
-        public PlayerController (IGameHandler gameHandler,
-            IInitialGameSetupHandler initialGameSetupHandler, 
-            IPlayerHandler playerHandler, 
-            ITurnHandler turnHandler,
-            IMapper mapper)
+        public PlayerController(GameFacade gameFacade, IMapper mapper)
         {
-            _gameHandler = gameHandler;
-            _initialGameSetupHandler = initialGameSetupHandler;
-            _playerHandler = playerHandler;
-            _turnHandler = turnHandler;
+            _gameFacade = gameFacade;
             _mapper = mapper;
         }
 
         [HttpPost]
         public ActionResult<AddNewPlayerResponse> Register([FromBody] AddNewPlayerRequest addPlayerRequest)
         {
-            var player = _initialGameSetupHandler.AddNewPlayer(addPlayerRequest.PlayerName);
+            var player = _gameFacade.AddNewPlayer(addPlayerRequest.PlayerName);
 
             var addNewPlayerResponse = _mapper.Map<AddNewPlayerResponse>(player);
 
@@ -43,7 +33,7 @@ namespace TowerDefense.Api.Controllers
         [HttpGet("{playerName}")]
         public ActionResult<GetPlayerInfoResponse> GetInfo(string playerName)
         {
-            var player = _playerHandler.GetPlayer(playerName);
+            var player = _gameFacade.GetPlayer(playerName);
             var getPlayerInfoResponse = _mapper.Map<GetPlayerInfoResponse>(player);
 
             return Ok(getPlayerInfoResponse);
@@ -52,7 +42,7 @@ namespace TowerDefense.Api.Controllers
         [HttpPost("endturn")]
         public ActionResult EndTurn(EndTurnRequest endTurnRequest)
         {
-            _turnHandler.TryEndTurn(endTurnRequest.PlayerName);
+            _gameFacade.EndTurn(endTurnRequest.PlayerName);
             return Ok();
         }
 
@@ -63,14 +53,14 @@ namespace TowerDefense.Api.Controllers
         [HttpPost("reset")]
         public ActionResult Reset()
         {
-            _gameHandler.ResetGame();
+            _gameFacade.ResetGame();
             return Ok();
         }
 
         [HttpPost("place-item")]
         public ActionResult PlaceItemOnGrid(ExecuteCommandRequest request)
         {
-            var player = _playerHandler.GetPlayer(request.PlayerName);
+            var player = _gameFacade.GetPlayer(request.PlayerName);
 
             var inventory = player.Inventory;
             var requestedItem = inventory.Items.FirstOrDefault(x => x.Id == request.InventoryItemId);

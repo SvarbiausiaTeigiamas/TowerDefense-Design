@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using TowerDefense.Api.Contracts.Perks;
+using TowerDefense.Api.GameLogic;
 using TowerDefense.Api.GameLogic.Handlers;
 
 namespace TowerDefense.Api.Controllers
@@ -9,18 +10,18 @@ namespace TowerDefense.Api.Controllers
     [ApiController]
     public class PerksController : ControllerBase
     {
+        private readonly GameFacade _gameFacade;
         private readonly IMapper _mapper;
-        private readonly IPerkHandler _perkHandler;
-        public PerksController(IMapper mapper, IPerkHandler perkHandler)
+        public PerksController(GameFacade gameFacade, IMapper mapper)
         {
+            _gameFacade = gameFacade;
             _mapper = mapper;
-            _perkHandler = perkHandler;
         }
 
         [HttpGet("{playerName}")]
         public ActionResult<GetPerksResponse> GetPerks(string playerName)
         {
-            var perks = _perkHandler.GetPerks(playerName);
+            var perks = _gameFacade.GetPlayerPerks(playerName);
 
             var perksResponse = _mapper.Map<GetPerksResponse>(perks);
 
@@ -30,7 +31,7 @@ namespace TowerDefense.Api.Controllers
         [HttpPost]
         public ActionResult PostPerk(ApplyPerkRequest applyPerkRequest)
         {
-            _perkHandler.UsePerk(applyPerkRequest.PlayerName, applyPerkRequest.PerkId);
+            _gameFacade.ApplyPerk(applyPerkRequest);
 
             return Ok();
         }
