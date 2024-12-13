@@ -27,8 +27,3 @@ jobs:
         # Run CSharpier in check mode
         dotnet csharpier --check .
 
-        # If the check fails, provide helpful message
-        if [ $? -ne 0 ]; then
-          echo "❌ Code formatting check failed. Please run 'dotnet csharpier .' locally to fix formatting issues."
-          exit 1
-        fi
