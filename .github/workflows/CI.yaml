@@ -1,0 +1,34 @@
+name: Code Formatting Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  format-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '6.0.427'
+
+    - name: Install CSharpier
+      run: dotnet tool install --global csharpier
+
+    - name: Check Format
+      working-directory: src/TowerDefense.Api
+      run: |
+        # Run CSharpier in check mode
+        dotnet csharpier --check .
+
+        # If the check fails, provide helpful message
+        if [ $? -ne 0 ]; then
+          echo "❌ Code formatting check failed. Please run 'dotnet csharpier .' locally to fix formatting issues."
+          exit 1
+        fi
