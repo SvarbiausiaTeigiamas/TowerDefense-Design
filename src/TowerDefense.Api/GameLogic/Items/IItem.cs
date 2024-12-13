@@ -8,6 +8,9 @@ namespace TowerDefense.Api.GameLogic.Items
         string Id { get; set; }
         IItemStats Stats { get; set; }
         ItemType ItemType { get; set; }
-        IEnumerable<AttackDeclaration> Attack(IArenaGrid opponentsArenaGrid, int attackingGridItemId);
+        IEnumerable<AttackDeclaration> Attack(
+            IArenaGrid opponentsArenaGrid,
+            int attackingGridItemId
+        );
     }
 }

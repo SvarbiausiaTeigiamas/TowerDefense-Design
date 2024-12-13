@@ -28,6 +28,7 @@ namespace TowerDefense.Api.GameLogic.Handlers
             _gameState = GameOriginator.GameState;
             _notificationHub = notificationHub;
         }
+
         public IPlayer AddNewPlayer(string playerName)
         {
             var player = AddPlayerToGame(playerName);
@@ -45,7 +46,8 @@ namespace TowerDefense.Api.GameLogic.Handlers
 
         public async Task TryStartGame()
         {
-            if (_gameState.ActivePlayers != Constants.TowerDefense.MaxNumberOfPlayers) return;
+            if (_gameState.ActivePlayers != Constants.TowerDefense.MaxNumberOfPlayers)
+                return;
 
             await _notificationHub.NotifyGameStart(_gameState.Players[0], _gameState.Players[1]);
         }

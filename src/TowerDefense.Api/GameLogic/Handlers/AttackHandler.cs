@@ -8,15 +8,16 @@ namespace TowerDefense.Api.GameLogic.Handlers
     {
         Attack HandlePlayerAttacks(IArenaGrid playerArenaGrid, IArenaGrid opponentArenaGrid);
     }
-    public class AttackHandler: IAttackHandler
+
+    public class AttackHandler : IAttackHandler
     {
         public Attack HandlePlayerAttacks(IArenaGrid playerArenaGrid, IArenaGrid opponentArenaGrid)
         {
             var directAttacks = new List<AttackDeclaration>();
             var itemAttacks = new List<AttackDeclaration>();
 
-            var items = playerArenaGrid.GridItems
-                .Where(x => x.Item is not Blank)
+            var items = playerArenaGrid
+                .GridItems.Where(x => x.Item is not Blank)
                 .Where(x => x.Item is not Placeholder)
                 .ToList();
 
@@ -30,10 +31,20 @@ namespace TowerDefense.Api.GameLogic.Handlers
                 }
                 else
                 {
-                    directAttacks.Add(new AttackDeclaration { PlayerWasHit = true, Damage = gridItem.Item.Stats.Damage });
+                    directAttacks.Add(
+                        new AttackDeclaration
+                        {
+                            PlayerWasHit = true,
+                            Damage = gridItem.Item.Stats.Damage,
+                        }
+                    );
                 }
             }
-            return new Attack{DirectAttackDeclarations = directAttacks, ItemAttackDeclarations = itemAttacks };
+            return new Attack
+            {
+                DirectAttackDeclarations = directAttacks,
+                ItemAttackDeclarations = itemAttacks,
+            };
         }
     }
 }

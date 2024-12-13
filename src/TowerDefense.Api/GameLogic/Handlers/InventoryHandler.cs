@@ -12,10 +12,12 @@ namespace TowerDefense.Api.GameLogic.Handlers
     public class InventoryHandler : IInventoryHandler
     {
         private readonly State _gameState;
+
         public InventoryHandler()
         {
             _gameState = GameOriginator.GameState;
         }
+
         public Inventory GetPlayerInventory(string playerName)
         {
             var player = _gameState.Players.First(x => x.Name == playerName);

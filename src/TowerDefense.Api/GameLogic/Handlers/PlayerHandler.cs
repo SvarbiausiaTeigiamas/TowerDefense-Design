@@ -22,6 +22,7 @@ namespace TowerDefense.Api.GameLogic.Handlers
         {
             return _gameState.Players.First(player => player.Name == playerName);
         }
+
         public IEnumerable<IPlayer> GetPlayers()
         {
             return _gameState.Players;

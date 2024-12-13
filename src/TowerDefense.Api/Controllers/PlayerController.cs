@@ -1,9 +1,9 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using TowerDefense.Api.GameLogic.Handlers;
+using TowerDefense.Api.Contracts.Command;
 using TowerDefense.Api.Contracts.Player;
 using TowerDefense.Api.Contracts.Turn;
-using TowerDefense.Api.Contracts.Command;
+using TowerDefense.Api.GameLogic.Handlers;
 
 namespace TowerDefense.Api.Controllers
 {
@@ -17,11 +17,13 @@ namespace TowerDefense.Api.Controllers
         private readonly IGameHandler _gameHandler;
         private readonly ITurnHandler _turnHandler;
 
-        public PlayerController (IGameHandler gameHandler,
-            IInitialGameSetupHandler initialGameSetupHandler, 
-            IPlayerHandler playerHandler, 
+        public PlayerController(
+            IGameHandler gameHandler,
+            IInitialGameSetupHandler initialGameSetupHandler,
+            IPlayerHandler playerHandler,
             ITurnHandler turnHandler,
-            IMapper mapper)
+            IMapper mapper
+        )
         {
             _gameHandler = gameHandler;
             _initialGameSetupHandler = initialGameSetupHandler;
@@ -31,7 +33,9 @@ namespace TowerDefense.Api.Controllers
         }
 
         [HttpPost]
-        public ActionResult<AddNewPlayerResponse> Register([FromBody] AddNewPlayerRequest addPlayerRequest)
+        public ActionResult<AddNewPlayerResponse> Register(
+            [FromBody] AddNewPlayerRequest addPlayerRequest
+        )
         {
             var player = _initialGameSetupHandler.AddNewPlayer(addPlayerRequest.PlayerName);
 
@@ -73,7 +77,9 @@ namespace TowerDefense.Api.Controllers
             var player = _playerHandler.GetPlayer(request.PlayerName);
 
             var inventory = player.Inventory;
-            var requestedItem = inventory.Items.FirstOrDefault(x => x.Id == request.InventoryItemId);
+            var requestedItem = inventory.Items.FirstOrDefault(x =>
+                x.Id == request.InventoryItemId
+            );
 
             if (requestedItem == null)
             {

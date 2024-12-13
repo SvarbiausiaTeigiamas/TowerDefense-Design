@@ -4,5 +4,5 @@ namespace TowerDefense.Api.Contracts.Perks
     {
         public string PlayerName { get; set; }
         public int PerkId { get; set; }
-}
+    }
 }

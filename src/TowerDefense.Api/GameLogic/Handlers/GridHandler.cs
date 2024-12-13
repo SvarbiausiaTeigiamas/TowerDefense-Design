@@ -16,6 +16,7 @@ namespace TowerDefense.Api.GameLogic.Handlers
         {
             _gameState = GameOriginator.GameState;
         }
+
         public IArenaGrid GetGridItems(string playerName)
         {
             var player = _gameState.Players.First(x => x.Name == playerName);

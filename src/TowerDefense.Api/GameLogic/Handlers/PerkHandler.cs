@@ -13,6 +13,7 @@ namespace TowerDefense.Api.GameLogic.Handlers
     public class PerkHandler : IPerkHandler
     {
         private readonly State _gameState;
+
         public PerkHandler()
         {
             _gameState = GameOriginator.GameState;
@@ -32,7 +33,8 @@ namespace TowerDefense.Api.GameLogic.Handlers
 
             var perk = player.PerkStorage.Perks.FirstOrDefault(x => x.Id == perkId);
 
-            if (perk == null) return;
+            if (perk == null)
+                return;
 
             if (perk.Type == PerkType.CutInHalf)
             {

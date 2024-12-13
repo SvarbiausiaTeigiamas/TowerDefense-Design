@@ -11,6 +11,7 @@ namespace TowerDefense.Api.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IPerkHandler _perkHandler;
+
         public PerksController(IMapper mapper, IPerkHandler perkHandler)
         {
             _mapper = mapper;

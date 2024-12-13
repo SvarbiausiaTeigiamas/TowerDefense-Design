@@ -7,7 +7,7 @@ namespace TowerDefense.Api.Contracts.Turn
     {
         public GridItem[] GridItems { get; set; }
 
-        public List<AttackResult> PlayerAttackResults{ get; set; }
+        public List<AttackResult> PlayerAttackResults { get; set; }
 
         public List<AttackResult> EnemyAttackResults { get; set; }
     }

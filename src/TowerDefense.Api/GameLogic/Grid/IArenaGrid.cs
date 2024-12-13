@@ -1,6 +1,6 @@
 namespace TowerDefense.Api.GameLogic.Grid;
 
-public interface IArenaGrid 
+public interface IArenaGrid
 {
     GridItem[] GridItems { get; set; }
 }

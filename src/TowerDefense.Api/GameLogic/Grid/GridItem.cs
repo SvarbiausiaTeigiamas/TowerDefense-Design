@@ -22,12 +22,15 @@ namespace TowerDefense.Api.GameLogic.Grid
 
             if (isDestroyed)
             {
-
                 this.Item = new Blank();
-
             }
 
-            IDamage damage = new FireDamage { Size = 1, Intensity = 1, Time = 2 };
+            IDamage damage = new FireDamage
+            {
+                Size = 1,
+                Intensity = 1,
+                Time = 2,
+            };
 
             return new AttackResult { GridId = this.Id, Damage = damage };
         }

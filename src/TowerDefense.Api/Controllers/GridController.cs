@@ -5,7 +5,6 @@ using TowerDefense.Api.GameLogic.Handlers;
 
 namespace TowerDefense.Api.Controllers
 {
-
     [Route("api/grid")]
     [ApiController]
     public class GridController : ControllerBase
@@ -18,7 +17,7 @@ namespace TowerDefense.Api.Controllers
             _gridHandler = gridHandler;
             _mapper = mapper;
         }
-        
+
         [HttpGet("{playerName}")]
         public ActionResult<GetGridResponse> GetGrid(string playerName)
         {

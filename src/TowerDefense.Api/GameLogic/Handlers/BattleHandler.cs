@@ -18,7 +18,11 @@ namespace TowerDefense.Api.GameLogic.Handlers
         private readonly INotificationHub _notificationHub;
         private readonly IGameHandler _gameHandler;
 
-        public BattleHandler(IAttackHandler attackHandler, IGameHandler gameHandler, INotificationHub notificationHub)
+        public BattleHandler(
+            IAttackHandler attackHandler,
+            IGameHandler gameHandler,
+            INotificationHub notificationHub
+        )
         {
             _gameState = GameOriginator.GameState;
             _attackHandler = attackHandler;
@@ -36,24 +40,35 @@ namespace TowerDefense.Api.GameLogic.Handlers
 
             // Get all AttackDeclarations
 
-            var player1Attack = _attackHandler.HandlePlayerAttacks(player1ArenaGrid, player2ArenaGrid);
-            var player2Attack = _attackHandler.HandlePlayerAttacks(player2ArenaGrid, player1ArenaGrid);
+            var player1Attack = _attackHandler.HandlePlayerAttacks(
+                player1ArenaGrid,
+                player2ArenaGrid
+            );
+            var player2Attack = _attackHandler.HandlePlayerAttacks(
+                player2ArenaGrid,
+                player1ArenaGrid
+            );
 
-            // Calculate players earned money 
+            // Calculate players earned money
 
-            player1.Money +=  player1Attack.ItemAttackDeclarations.Sum(x => x.EarnedMoney);
+            player1.Money += player1Attack.ItemAttackDeclarations.Sum(x => x.EarnedMoney);
             player2.Money += player2Attack.ItemAttackDeclarations.Sum(x => x.EarnedMoney);
 
             // NotifyPlayerGridItems opposing players grid items to receive attack
-            var player1AttackResults = NotifyPlayerGridItems(player2, player1Attack.ItemAttackDeclarations);
-            var player2AttackResults = NotifyPlayerGridItems(player1, player2Attack.ItemAttackDeclarations);
+            var player1AttackResults = NotifyPlayerGridItems(
+                player2,
+                player1Attack.ItemAttackDeclarations
+            );
+            var player2AttackResults = NotifyPlayerGridItems(
+                player1,
+                player2Attack.ItemAttackDeclarations
+            );
 
             // Calculate damage
 
             DoDamageToPlayer(player1, player2Attack.DirectAttackDeclarations);
             DoDamageToPlayer(player2, player1Attack.DirectAttackDeclarations);
 
-            
             if (player1.Health <= 0)
             {
                 await _gameHandler.FinishGame(player2);
@@ -69,25 +84,28 @@ namespace TowerDefense.Api.GameLogic.Handlers
             {
                 GridItems = player2ArenaGrid.GridItems,
                 PlayerAttackResults = player2AttackResults,
-                EnemyAttackResults = player1AttackResults
+                EnemyAttackResults = player1AttackResults,
             };
             var player2TurnOutcome = new EndTurnResponse
             {
                 GridItems = player1ArenaGrid.GridItems,
                 PlayerAttackResults = player1AttackResults,
-                EnemyAttackResults = player2AttackResults
+                EnemyAttackResults = player2AttackResults,
             };
 
             var responses = new Dictionary<string, EndTurnResponse>
             {
                 { player1.Name, player1TurnOutcome },
-                { player2.Name, player2TurnOutcome }
+                { player2.Name, player2TurnOutcome },
             };
 
             await _notificationHub.SendPlayersTurnResult(responses);
         }
 
-        private static List<AttackResult> NotifyPlayerGridItems(IPlayer player, IEnumerable<AttackDeclaration> attackDeclarations)
+        private static List<AttackResult> NotifyPlayerGridItems(
+            IPlayer player,
+            IEnumerable<AttackDeclaration> attackDeclarations
+        )
         {
             List<AttackResult> attackResults = new List<AttackResult>();
 
@@ -95,7 +113,8 @@ namespace TowerDefense.Api.GameLogic.Handlers
             {
                 foreach (var attackDeclaration in attackDeclarations)
                 {
-                    if (attackDeclaration == null || attackDeclaration.GridItemId != subscriber.Id) continue;
+                    if (attackDeclaration == null || attackDeclaration.GridItemId != subscriber.Id)
+                        continue;
 
                     var attackResult = subscriber.HandleAttack(attackDeclaration);
                     attackResults.Add(attackResult);
@@ -105,7 +124,10 @@ namespace TowerDefense.Api.GameLogic.Handlers
             return attackResults;
         }
 
-        private static void DoDamageToPlayer(IPlayer player, IEnumerable<AttackDeclaration> attackDeclarations)
+        private static void DoDamageToPlayer(
+            IPlayer player,
+            IEnumerable<AttackDeclaration> attackDeclarations
+        )
         {
             foreach (var attack in attackDeclarations)
             {

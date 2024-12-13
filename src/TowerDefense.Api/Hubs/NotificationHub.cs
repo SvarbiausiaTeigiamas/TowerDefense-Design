@@ -9,6 +9,7 @@ namespace TowerDefense.Api.Hubs
     {
         private readonly IHubContext<GameHub> _gameHubContext;
         private readonly IPlayerHandler _playerHandler;
+
         public NotificationHub(IHubContext<GameHub> gameHubContext, IPlayerHandler playerHandler)
         {
             _playerHandler = playerHandler;
@@ -26,13 +27,18 @@ namespace TowerDefense.Api.Hubs
 
         public async Task NotifyGameStart(IPlayer firstPlayer, IPlayer secondPlayer)
         {
-            await _gameHubContext.Clients.Client(firstPlayer.ConnectionId).SendAsync("EnemyInfo", secondPlayer);
-            await _gameHubContext.Clients.Client(secondPlayer.ConnectionId).SendAsync("EnemyInfo", firstPlayer);
+            await _gameHubContext
+                .Clients.Client(firstPlayer.ConnectionId)
+                .SendAsync("EnemyInfo", secondPlayer);
+            await _gameHubContext
+                .Clients.Client(secondPlayer.ConnectionId)
+                .SendAsync("EnemyInfo", firstPlayer);
         }
 
         public async Task SendEndTurnInfo(IPlayer player, EndTurnResponse turnOutcome)
         {
-            await _gameHubContext.Clients.Client(player.ConnectionId)
+            await _gameHubContext
+                .Clients.Client(player.ConnectionId)
                 .SendAsync("EndTurn", turnOutcome);
         }
 
@@ -50,7 +56,9 @@ namespace TowerDefense.Api.Hubs
             var players = _playerHandler.GetPlayers().Where(x => x != null);
             foreach (var player in players)
             {
-                await _gameHubContext.Clients.Client(player.ConnectionId).SendAsync("GameFinished", winner.Name);
+                await _gameHubContext
+                    .Clients.Client(player.ConnectionId)
+                    .SendAsync("GameFinished", winner.Name);
             }
         }
     }

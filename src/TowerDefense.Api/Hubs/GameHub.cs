@@ -11,9 +11,9 @@ namespace TowerDefense.Api.Hubs
         {
             _initialGameSetup = initialGameSetup;
         }
-        
+
         public async Task JoinGame(string playerName)
-        {       
+        {
             _initialGameSetup.SetConnectionIdForPlayer(playerName, Context.ConnectionId);
             await _initialGameSetup.TryStartGame();
         }
