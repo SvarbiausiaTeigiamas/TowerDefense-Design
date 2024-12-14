@@ -1,6 +1,6 @@
 using TowerDefense.Api.GameLogic.GameState;
-using TowerDefense.Api.GameLogic.Player.Memento;
 using TowerDefense.Api.GameLogic.Player;
+using TowerDefense.Api.GameLogic.Player.Memento;
 using TowerDefense.Api.Hubs;
 
 namespace TowerDefense.Api.GameLogic.Handlers

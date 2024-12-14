@@ -46,8 +46,8 @@ namespace TowerDefense.Api.GameLogic.Handlers
 
                 var newSnapshot = GameOriginator.SaveHealthSnapshot();
                 _caretaker.AddSnapshot(newSnapshot);
-                
-                player.PerkStorage.Perks = player.PerkStorage.Perks.Where(x => x.Id != perkId); 
+
+                player.PerkStorage.Perks = player.PerkStorage.Perks.Where(x => x.Id != perkId);
             }
         }
     }

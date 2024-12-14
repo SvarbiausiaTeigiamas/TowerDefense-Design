@@ -1,5 +1,5 @@
-using TowerDefense.Api.GameLogic.Player.Memento;
 using TowerDefense.Api.GameLogic.Handlers;
+using TowerDefense.Api.GameLogic.Player.Memento;
 using TowerDefense.Api.Hubs;
 
 namespace TowerDefense.Api.Bootstrap

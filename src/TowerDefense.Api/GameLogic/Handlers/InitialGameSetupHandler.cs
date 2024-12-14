@@ -1,8 +1,8 @@
 using TowerDefense.Api.GameLogic.GameState;
-using TowerDefense.Api.GameLogic.Player.Memento;
 using TowerDefense.Api.GameLogic.Grid;
 using TowerDefense.Api.GameLogic.PerkStorage;
 using TowerDefense.Api.GameLogic.Player;
+using TowerDefense.Api.GameLogic.Player.Memento;
 using TowerDefense.Api.GameLogic.Shop;
 using TowerDefense.Api.Hubs;
 
@@ -58,7 +58,7 @@ namespace TowerDefense.Api.GameLogic.Handlers
             _caretaker.AddSnapshot(snapshot);
             _caretaker.AddSnapshot(snapshot);
             _caretaker.AddSnapshot(snapshot);
-            
+
             await _notificationHub.NotifyGameStart(_gameState.Players[0], _gameState.Players[1]);
         }
 

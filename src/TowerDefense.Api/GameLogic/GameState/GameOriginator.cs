@@ -10,7 +10,7 @@ namespace TowerDefense.Api.GameLogic.GameState
         {
             var player1 = GameState.Players[0];
             var player2 = GameState.Players[1];
-            
+
             return new PlayerHealthMemento(new HealthSnapshot(player1.Health, player2.Health));
         }
     }
