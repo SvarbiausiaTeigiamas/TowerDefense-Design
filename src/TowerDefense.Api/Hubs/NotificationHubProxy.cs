@@ -37,7 +37,6 @@ public class NotificationHubProxy : INotificationHub
 
     public async Task NotifyGameStart(IPlayer firstPlayer, IPlayer secondPlayer)
     {
-        Console.WriteLine("stuff");
         try
         {
             _logger.LogInformation(
