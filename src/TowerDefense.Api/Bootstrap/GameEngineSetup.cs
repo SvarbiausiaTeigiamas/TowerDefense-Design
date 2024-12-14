@@ -1,4 +1,5 @@
 using TowerDefense.Api.GameLogic.Handlers;
+using TowerDefense.Api.GameLogic.Player.Memento;
 using TowerDefense.Api.Hubs;
 
 namespace TowerDefense.Api.Bootstrap
@@ -17,6 +18,7 @@ namespace TowerDefense.Api.Bootstrap
             serviceCollection.AddTransient<IPlayerHandler, PlayerHandler>();
             serviceCollection.AddTransient<IAttackHandler, AttackHandler>();
             serviceCollection.AddTransient<IGameHandler, GameHandler>();
+            serviceCollection.AddSingleton<ICareTaker, CareTaker>();
             serviceCollection.AddTransient<IPerkHandler, PerkHandler>();
         }
     }

@@ -1,5 +1,6 @@
 using TowerDefense.Api.GameLogic.GameState;
 using TowerDefense.Api.GameLogic.Player;
+using TowerDefense.Api.GameLogic.Player.Memento;
 using TowerDefense.Api.Hubs;
 
 namespace TowerDefense.Api.GameLogic.Handlers
@@ -13,9 +14,11 @@ namespace TowerDefense.Api.GameLogic.Handlers
     class GameHandler : IGameHandler
     {
         private readonly INotificationHub _notificationHub;
+        private readonly ICareTaker _caretaker;
 
-        public GameHandler(INotificationHub notificationHub)
+        public GameHandler(INotificationHub notificationHub, ICareTaker caretaker)
         {
+            _caretaker = caretaker;
             _notificationHub = notificationHub;
         }
 
@@ -28,6 +31,7 @@ namespace TowerDefense.Api.GameLogic.Handlers
         public async Task FinishGame(IPlayer winnerPlayer)
         {
             await _notificationHub.NotifyGameFinished(winnerPlayer);
+            _caretaker.Clear();
             GameOriginator.GameState = new State();
         }
     }
