@@ -1,6 +1,7 @@
 using TowerDefense.Api.GameLogic.GameState;
 using TowerDefense.Api.GameLogic.Perks;
 using TowerDefense.Api.GameLogic.PerkStorage;
+using TowerDefense.Api.GameLogic.Player.Memento;
 
 namespace TowerDefense.Api.GameLogic.Handlers
 {
@@ -13,10 +14,12 @@ namespace TowerDefense.Api.GameLogic.Handlers
     public class PerkHandler : IPerkHandler
     {
         private readonly State _gameState;
+        private readonly ICareTaker _caretaker;
 
-        public PerkHandler()
+        public PerkHandler(ICareTaker caretaker)
         {
             _gameState = GameOriginator.GameState;
+            _caretaker = caretaker;
         }
 
         public IPerkStorage GetPerks(string playerName)
@@ -36,10 +39,15 @@ namespace TowerDefense.Api.GameLogic.Handlers
             if (perk == null)
                 return;
 
-            if (perk.Type == PerkType.CutInHalf)
+            if (perk.Type == PerkType.ResetDamage)
             {
-                enemyPlayer.Money /= 2;
-                player.PerkStorage.Perks = player.PerkStorage.Perks.Where(x => x.Id != perkId);
+                var previousState = _caretaker.GetPreviousState();
+                previousState.Restore();
+
+                var newSnapshot = GameOriginator.SaveHealthSnapshot();
+                _caretaker.AddSnapshot(newSnapshot);
+                
+                player.PerkStorage.Perks = player.PerkStorage.Perks.Where(x => x.Id != perkId); 
             }
         }
     }

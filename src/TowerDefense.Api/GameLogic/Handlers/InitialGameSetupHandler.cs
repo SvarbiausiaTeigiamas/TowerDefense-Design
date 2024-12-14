@@ -1,4 +1,5 @@
 using TowerDefense.Api.GameLogic.GameState;
+using TowerDefense.Api.GameLogic.Player.Memento;
 using TowerDefense.Api.GameLogic.Grid;
 using TowerDefense.Api.GameLogic.PerkStorage;
 using TowerDefense.Api.GameLogic.Player;
@@ -22,11 +23,13 @@ namespace TowerDefense.Api.GameLogic.Handlers
     {
         private readonly State _gameState;
         private readonly INotificationHub _notificationHub;
+        private readonly ICareTaker _caretaker;
 
-        public InitialGameSetupHandler(INotificationHub notificationHub)
+        public InitialGameSetupHandler(INotificationHub notificationHub, ICareTaker caretaker)
         {
             _gameState = GameOriginator.GameState;
             _notificationHub = notificationHub;
+            _caretaker = caretaker;
         }
 
         public IPlayer AddNewPlayer(string playerName)
@@ -49,6 +52,13 @@ namespace TowerDefense.Api.GameLogic.Handlers
             if (_gameState.ActivePlayers != Constants.TowerDefense.MaxNumberOfPlayers)
                 return;
 
+            var snapshot = GameOriginator.SaveHealthSnapshot();
+            // save multiple times to avoid accessing empty stack if used too early
+            _caretaker.AddSnapshot(snapshot);
+            _caretaker.AddSnapshot(snapshot);
+            _caretaker.AddSnapshot(snapshot);
+            _caretaker.AddSnapshot(snapshot);
+            
             await _notificationHub.NotifyGameStart(_gameState.Players[0], _gameState.Players[1]);
         }
 

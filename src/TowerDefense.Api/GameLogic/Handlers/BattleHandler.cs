@@ -1,6 +1,7 @@
 using TowerDefense.Api.Contracts.Turn;
 using TowerDefense.Api.GameLogic.Attacks;
 using TowerDefense.Api.GameLogic.GameState;
+using TowerDefense.Api.GameLogic.Player.Memento;
 using TowerDefense.Api.GameLogic.Player;
 using TowerDefense.Api.Hubs;
 
@@ -17,17 +18,20 @@ namespace TowerDefense.Api.GameLogic.Handlers
         private readonly IAttackHandler _attackHandler;
         private readonly INotificationHub _notificationHub;
         private readonly IGameHandler _gameHandler;
+        private readonly ICareTaker _caretaker;
 
         public BattleHandler(
             IAttackHandler attackHandler,
             IGameHandler gameHandler,
-            INotificationHub notificationHub
+            INotificationHub notificationHub,
+            ICareTaker caretaker
         )
         {
             _gameState = GameOriginator.GameState;
             _attackHandler = attackHandler;
             _gameHandler = gameHandler;
             _notificationHub = notificationHub;
+            _caretaker = caretaker;
         }
 
         public async Task HandleEndTurn()
@@ -98,6 +102,9 @@ namespace TowerDefense.Api.GameLogic.Handlers
                 { player1.Name, player1TurnOutcome },
                 { player2.Name, player2TurnOutcome },
             };
+
+            var snapshot = GameOriginator.SaveHealthSnapshot();
+            _caretaker.AddSnapshot(snapshot);
 
             await _notificationHub.SendPlayersTurnResult(responses);
         }
