@@ -8,7 +8,7 @@ namespace TowerDefense.Api.Bootstrap
     {
         public static void SetupGameEngine(this IServiceCollection serviceCollection)
         {
-            serviceCollection.AddTransient<NotificationHub>(); 
+            serviceCollection.AddTransient<NotificationHub>();
             serviceCollection.AddTransient<INotificationHub>(serviceProvider =>
             {
                 var logger = serviceProvider.GetRequiredService<ILogger<NotificationHubProxy>>();

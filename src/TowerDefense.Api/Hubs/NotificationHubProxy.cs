@@ -10,7 +10,8 @@ public class NotificationHubProxy : INotificationHub
 
     public NotificationHubProxy(
         Func<INotificationHub> hubFactory,
-        ILogger<NotificationHubProxy> logger)
+        ILogger<NotificationHubProxy> logger
+    )
     {
         _realHub = new Lazy<INotificationHub>(hubFactory);
         _logger = logger;
@@ -20,7 +21,10 @@ public class NotificationHubProxy : INotificationHub
     {
         try
         {
-            _logger.LogInformation("Sending turn results to {PlayerCount} players", responses.Count);
+            _logger.LogInformation(
+                "Sending turn results to {PlayerCount} players",
+                responses.Count
+            );
             await _realHub.Value.SendPlayersTurnResult(responses);
             _logger.LogInformation("Turn results sent successfully");
         }
@@ -36,8 +40,11 @@ public class NotificationHubProxy : INotificationHub
         Console.WriteLine("stuff");
         try
         {
-            _logger.LogInformation("Starting game between {Player1} and {Player2}", 
-                firstPlayer.Name, secondPlayer.Name);
+            _logger.LogInformation(
+                "Starting game between {Player1} and {Player2}",
+                firstPlayer.Name,
+                secondPlayer.Name
+            );
             await _realHub.Value.NotifyGameStart(firstPlayer, secondPlayer);
             _logger.LogInformation("Game start notification sent successfully");
         }
