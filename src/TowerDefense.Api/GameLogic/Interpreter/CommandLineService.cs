@@ -1,14 +1,11 @@
 namespace TowerDefense.Api.GameLogic.Interpreter;
 
-public class CommandLineService: BackgroundService
+public class CommandLineService : BackgroundService
 {
     private readonly CommandRegistry _registry;
     private readonly ILogger<CommandLineService> _logger;
 
-    public CommandLineService(
-        CommandRegistry registry,
-        ILogger<CommandLineService> logger
-    )
+    public CommandLineService(CommandRegistry registry, ILogger<CommandLineService> logger)
     {
         _registry = registry;
         _logger = logger;
@@ -19,39 +16,42 @@ public class CommandLineService: BackgroundService
         _logger.LogInformation("Command line service started");
 
         // Run command processing in a separate task
-        _ = Task.Run(() =>
-        {
-            while (!stoppingToken.IsCancellationRequested)
+        _ = Task.Run(
+            () =>
             {
-                Console.Write("> ");
-                string? input = Console.ReadLine();
-
-                if (string.IsNullOrEmpty(input))
-                    continue;
-
-                var parts = input.Split(' ');
-                var commandName = parts[0].ToLower();
-                var args = parts.Skip(1).ToArray(); 
-
-                if (_registry.TryGetCommand(commandName, out ICommand? command))
+                while (!stoppingToken.IsCancellationRequested)
                 {
-                    try
+                    Console.Write("> ");
+                    string? input = Console.ReadLine();
+
+                    if (string.IsNullOrEmpty(input))
+                        continue;
+
+                    var parts = input.Split(' ');
+                    var commandName = parts[0].ToLower();
+                    var args = parts.Skip(1).ToArray();
+
+                    if (_registry.TryGetCommand(commandName, out ICommand? command))
                     {
-                        command?.Execute(args);
+                        try
+                        {
+                            command?.Execute(args);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error executing command {Command}", commandName);
+                        }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        _logger.LogError(ex, "Error executing command {Command}", commandName);
+                        Console.WriteLine($"Unknown command: {commandName}");
                     }
                 }
-                else
-                {
-                    Console.WriteLine($"Unknown command: {commandName}");
-                }
-            }
 
-            return Task.CompletedTask;
-        }, stoppingToken);
+                return Task.CompletedTask;
+            },
+            stoppingToken
+        );
 
         // Keep the service alive without blocking
         while (!stoppingToken.IsCancellationRequested)

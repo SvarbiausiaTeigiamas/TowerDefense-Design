@@ -2,7 +2,7 @@ using TowerDefense.Api.GameLogic.GameState;
 
 namespace TowerDefense.Api.GameLogic.Interpreter;
 
-public class ResetHealthCommand: ICommand
+public class ResetHealthCommand : ICommand
 {
     public string Description => "Resets both players health and armor";
 
