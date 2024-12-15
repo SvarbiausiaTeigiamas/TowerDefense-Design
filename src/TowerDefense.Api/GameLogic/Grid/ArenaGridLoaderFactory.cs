@@ -9,7 +9,7 @@
             {
                 ".json" => new JsonArenaGridLoader(),
                 ".csv" => new CsvArenaGridLoader(),
-                _ => throw new ArgumentException($"Unsupported file type: {extension}")
+                _ => throw new ArgumentException($"Unsupported file type: {extension}"),
             };
         }
     }
