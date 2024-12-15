@@ -64,7 +64,9 @@ namespace TowerDefense.Api.GameLogic.Handlers
 
         public void SetArenaGridForPlayer(IPlayer player)
         {
-            var arenaGrid = new FirstLevelArenaGrid();
+            string file = Path.GetFullPath("./GameLogic/Grid/CSVfile.csv");
+            var arenaGrid = new FirstLevelArenaGrid(file);
+            Console.WriteLine("Using TEMPLATE pattern, reading from " + file);
             player.ArenaGrid = arenaGrid;
         }
 

@@ -1,24 +1,14 @@
 namespace TowerDefense.Api.GameLogic.Grid
 {
-    public class FirstLevelArenaGrid : IArenaGrid
+    public sealed class FirstLevelArenaGrid : IArenaGrid
     {
-        public GridItem[] GridItems { get; set; } =
-            new GridItem[Constants.TowerDefense.MaxGridGridItemsForPlayer];
+        public GridItem[] GridItems { get; set; }
 
-        public FirstLevelArenaGrid()
+        public FirstLevelArenaGrid(string filePath)
         {
-            const string gridLayout =
-                @"33333333
-                                        33333333
-                                        33333333
-                                        33333333
-                                        33333333
-                                        33333333
-                                        33333333
-                                        33333333
-                                        33333333";
-
-            GridItems.CreateGrid(gridLayout);
+            var gridLoader = ArenaGridLoaderFactory.CreateLoader(filePath);
+            gridLoader.LoadGrid(filePath);
+            GridItems = gridLoader.GridItems;
         }
     }
 }
