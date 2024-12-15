@@ -1,13 +1,31 @@
+using System.Numerics;
 using TowerDefense.Api.GameLogic.Grid;
 using TowerDefense.Api.GameLogic.Items.Models;
+using Plane = TowerDefense.Api.GameLogic.Items.Models.Plane;
 
 namespace TowerDefense.Api.GameLogic.Items
 {
-    public static class ItemHelpers
+    public class ItemFactory
     {
-        public static IItem CreateItemByType(ItemType item)
+        private static readonly Dictionary<ItemType, IItem> _itemCache = new();
+
+        public static IItem GetItem(ItemType itemType)
         {
-            return item switch
+            if (!_itemCache.ContainsKey(itemType))
+            {
+                Console.WriteLine($"Creating new flyweight item of type: {itemType}");
+                _itemCache[itemType] = CreateNewItem(itemType);
+            }
+            else
+            {
+                Console.WriteLine($"Reusing existing flyweight item of type: {itemType}");
+            }
+            return _itemCache[itemType];
+        }
+
+        private static IItem CreateNewItem(ItemType itemType)
+        {
+            return itemType switch
             {
                 ItemType.Blank => new Blank(),
                 ItemType.Plane => new Plane(),
@@ -16,6 +34,25 @@ namespace TowerDefense.Api.GameLogic.Items
                 ItemType.Placeholder => new Placeholder(),
                 _ => throw new ArgumentOutOfRangeException(),
             };
+        }
+    }
+
+    // Modified GridItem to work with flyweight pattern
+    public class GridItem
+    {
+        public int Id { get; set; }
+        public ItemType ItemType { get; set; } // Store the type instead of the instance
+        public IItem Item => ItemFactory.GetItem(ItemType); // Get shared instance on demand
+
+        public int Health { get; set; }
+        public Vector2 Position { get; set; }
+    }
+
+    public static class ItemHelpers
+    {
+        public static IItem CreateItemByType(ItemType item)
+        {
+            return ItemFactory.GetItem(item); // Use factory instead of direct creation
         }
 
         public static int GetAttackingItemRowId(int attackingGridItemId)
@@ -29,6 +66,12 @@ namespace TowerDefense.Api.GameLogic.Items
                 .GridItems.Where(x =>
                     (int)(x.Id / Constants.TowerDefense.MaxGridGridItemsInRow) == rowId
                 )
+                .Select(x => new GridItem
+                {
+                    Id = x.Id,
+                    ItemType = x.ItemType,
+                    // Copy other necessary properties
+                })
                 .ToList();
         }
 
@@ -38,9 +81,7 @@ namespace TowerDefense.Api.GameLogic.Items
         )
         {
             var attackerRowId = GetAttackingItemRowId(attackingGridItemId);
-
             var affectedGridItems = new List<int>();
-
             var row = opponentsArenaGrid.GetAttackedRowItems(attackerRowId);
 
             foreach (var gridItem in row)
@@ -58,7 +99,9 @@ namespace TowerDefense.Api.GameLogic.Items
         {
             if (gridItem == null)
                 return false;
-            return gridItem.Item is not Blank && gridItem.Item is not Placeholder;
+
+            var itemType = gridItem.ItemType;
+            return itemType != ItemType.Blank && itemType != ItemType.Placeholder;
         }
     }
 }
