@@ -41,20 +41,18 @@ namespace TowerDefense.Api.GameLogic.Items
     public class GridItem
     {
         public int Id { get; set; }
-        public ItemType ItemType { get; set; }  // Store the type instead of the instance
-        public IItem Item => ItemFactory.GetItem(ItemType);  // Get shared instance on demand
+        public ItemType ItemType { get; set; } // Store the type instead of the instance
+        public IItem Item => ItemFactory.GetItem(ItemType); // Get shared instance on demand
 
-        // Add any grid-specific state here (position, health, etc.)
         public int Health { get; set; }
         public Vector2 Position { get; set; }
-        // ... other extrinsic state
     }
 
     public static class ItemHelpers
     {
         public static IItem CreateItemByType(ItemType item)
         {
-            return ItemFactory.GetItem(item);  // Use factory instead of direct creation
+            return ItemFactory.GetItem(item); // Use factory instead of direct creation
         }
 
         public static int GetAttackingItemRowId(int attackingGridItemId)
