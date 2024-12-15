@@ -64,7 +64,7 @@ namespace TowerDefense.Api.GameLogic.Handlers
 
         public void SetArenaGridForPlayer(IPlayer player)
         {
-            var arenaGrid = new FirstLevelArenaGrid();
+            var arenaGrid = new FirstLevelArenaGrid("awdawd");
             player.ArenaGrid = arenaGrid;
         }
 
