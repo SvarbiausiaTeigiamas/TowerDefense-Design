@@ -13,7 +13,12 @@ namespace TowerDefense.Api.GameLogic.Items
         {
             if (!_itemCache.ContainsKey(itemType))
             {
+                Console.WriteLine($"Creating new flyweight item of type: {itemType}");
                 _itemCache[itemType] = CreateNewItem(itemType);
+            }
+            else
+            {
+                Console.WriteLine($"Reusing existing flyweight item of type: {itemType}");
             }
             return _itemCache[itemType];
         }
