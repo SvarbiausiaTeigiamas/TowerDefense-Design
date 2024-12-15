@@ -16,13 +16,12 @@ namespace TowerDefense.Api.GameLogic.Grid
         protected override string ReadFile(string filePath)
         {
             var jsonContent = File.ReadAllText(filePath);
-            var gridData = JsonSerializer.Deserialize<GridData>(jsonContent);
-            return gridData.Layout;
+            var array = JsonSerializer.Deserialize<int[][]>(jsonContent);
+            return string.Join("\n", array.Select(row => string.Join("", row)));
         }
 
         protected override void ParseGridLayout(string gridLayout)
         {
-            // Clean up JSON-specific formatting
             gridLayout = gridLayout.Trim();
         }
 
