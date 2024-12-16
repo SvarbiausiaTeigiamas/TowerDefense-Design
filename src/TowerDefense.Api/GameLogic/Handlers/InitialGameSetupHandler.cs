@@ -8,37 +8,38 @@ using TowerDefense.Api.Hubs;
 
 namespace TowerDefense.Api.GameLogic.Handlers
 {
-    public interface IInitialGameSetupHandler
-    {
-        IPlayer AddNewPlayer(string playerName);
-        void SetConnectionIdForPlayer(string playerName, string connectionId);
-        IPlayer AddPlayerToGame(string playerName);
-        void SetArenaGridForPlayer(IPlayer player);
-        void SetShopForPlayer(IPlayer player);
-        void SetPerkStorageForPlayer(IPlayer player);
-        Task TryStartGame();
-    }
-
-    public class InitialGameSetupHandler : IInitialGameSetupHandler
+    public class InitialGameSetupHandler
     {
         private readonly State _gameState;
         private readonly INotificationHub _notificationHub;
         private readonly ICareTaker _caretaker;
+        private readonly PlayerSetupHandler _playerSetupChain;
 
         public InitialGameSetupHandler(INotificationHub notificationHub, ICareTaker caretaker)
         {
             _gameState = GameOriginator.GameState;
             _notificationHub = notificationHub;
             _caretaker = caretaker;
+
+            // Initialize the chain
+            var addPlayerHandler = new AddPlayerHandler(_gameState);
+            var arenaGridHandler = new ArenaGridSetupHandler(_gameState);
+            var shopHandler = new ShopSetupHandler(_gameState);
+            var perkStorageHandler = new PerkStorageSetupHandler(_gameState);
+
+            // Set up the chain
+            addPlayerHandler
+                .SetNext(arenaGridHandler)
+                .SetNext(shopHandler)
+                .SetNext(perkStorageHandler);
+
+            _playerSetupChain = addPlayerHandler;
         }
 
         public IPlayer AddNewPlayer(string playerName)
         {
-            var player = AddPlayerToGame(playerName);
-            SetArenaGridForPlayer(player);
-            SetShopForPlayer(player);
-            SetPerkStorageForPlayer(player);
-            return player;
+            var newPlayer = new FirstLevelPlayer { Name = playerName };
+            return _playerSetupChain.Handle(newPlayer);
         }
 
         public void SetConnectionIdForPlayer(string playerName, string connectionId)
@@ -60,40 +61,6 @@ namespace TowerDefense.Api.GameLogic.Handlers
             _caretaker.AddSnapshot(snapshot);
 
             await _notificationHub.NotifyGameStart(_gameState.Players[0], _gameState.Players[1]);
-        }
-
-        public void SetArenaGridForPlayer(IPlayer player)
-        {
-            string file = Path.GetFullPath("./GameLogic/Grid/CSVfile.csv");
-            var arenaGrid = new FirstLevelArenaGrid(file);
-            Console.WriteLine("Using TEMPLATE pattern, reading from " + file);
-            player.ArenaGrid = arenaGrid;
-        }
-
-        public void SetShopForPlayer(IPlayer player)
-        {
-            var shop = new FirstLevelShop();
-            player.Shop = shop;
-        }
-
-        public void SetPerkStorageForPlayer(IPlayer player)
-        {
-            var perkStorage = new FirstLevelPerkStorage();
-            player.PerkStorage = perkStorage;
-        }
-
-        public IPlayer AddPlayerToGame(string playerName)
-        {
-            if (_gameState.ActivePlayers == Constants.TowerDefense.MaxNumberOfPlayers)
-            {
-                throw new ArgumentException();
-            }
-
-            var currentNewPlayerId = _gameState.ActivePlayers;
-            var newPlayer = new FirstLevelPlayer { Name = playerName };
-            _gameState.Players[currentNewPlayerId] = newPlayer;
-
-            return newPlayer;
         }
     }
 }
