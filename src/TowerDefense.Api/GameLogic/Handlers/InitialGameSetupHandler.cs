@@ -8,7 +8,7 @@ using TowerDefense.Api.Hubs;
 
 namespace TowerDefense.Api.GameLogic.Handlers
 {
-    public class InitialGameSetupHandler
+    public class InitialGameSetupHandler : IInitialGameSetupHandler
     {
         private readonly State _gameState;
         private readonly INotificationHub _notificationHub;
@@ -61,6 +61,27 @@ namespace TowerDefense.Api.GameLogic.Handlers
             _caretaker.AddSnapshot(snapshot);
 
             await _notificationHub.NotifyGameStart(_gameState.Players[0], _gameState.Players[1]);
+        }
+
+        public IPlayer AddPlayerToGame(string playerName)
+        {
+            var newPlayer = new FirstLevelPlayer { Name = playerName };
+            return new AddPlayerHandler(_gameState).Handle(newPlayer);
+        }
+
+        public void SetArenaGridForPlayer(IPlayer player)
+        {
+            new ArenaGridSetupHandler(_gameState).Handle(player);
+        }
+
+        public void SetShopForPlayer(IPlayer player)
+        {
+            new ShopSetupHandler(_gameState).Handle(player);
+        }
+
+        public void SetPerkStorageForPlayer(IPlayer player)
+        {
+            new PerkStorageSetupHandler(_gameState).Handle(player);
         }
     }
 }
