@@ -40,7 +40,7 @@ namespace TowerDefense.Api.GameLogic.Handlers
 
             player.Money -= item.Stats.Price;
 
-            var inventoryItem = ItemFactory.GetItem(item.ItemType);
+            var inventoryItem = FlyweightFactory.GetFlyweight(item.ItemType);
             inventoryItem.Id = Guid.NewGuid().ToString();
             player.Inventory.Items.Add(inventoryItem);
 
