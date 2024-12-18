@@ -5,25 +5,18 @@ using TowerDefense.Api.GameLogic.Items.Models;
 
 namespace TowerDefense.Api.GameLogic.Items
 {
-    public interface IFlyweight : IItem
+    public interface IFlyweightItem : IItem
     {
-        void Operation(ExtrinsicState state);
+        new ItemType Type { get; }
+        new int Id { get; }
     }
 
-    public class ExtrinsicState
+    public class ConcreteFlyweight : IFlyweightItem
     {
-        public int Id { get; set; }
-        public int Health { get; set; }
-        public Vector2 Position { get; set; }
-    }
-
-    public abstract class BaseFlyweight : IFlyweight
-    {
-        protected readonly ItemType IntrinsicState;
-
-        // Minimal IItem implementation just to satisfy interface
-        public string Id { get; set; } = string.Empty;
-        public IItemStats Stats { get; set; } = null;
+        string IItem.Id { get; set; }
+        public int Id { get; }
+        public ItemType Type { get; }
+        public IItemStats Stats { get; set; }
         public ItemType ItemType { get; set; }
 
         public IEnumerable<AttackDeclaration> Attack(IArenaGrid opponentsArenaGrid, int attackingGridItemId)
@@ -31,106 +24,112 @@ namespace TowerDefense.Api.GameLogic.Items
             return Enumerable.Empty<AttackDeclaration>();
         }
 
-        protected BaseFlyweight(ItemType intrinsicState)
+        public ConcreteFlyweight(ItemType type)
         {
-            IntrinsicState = intrinsicState;
-            ItemType = intrinsicState;  // Set the ItemType to match intrinsic state
-        }
-
-        public virtual void Operation(ExtrinsicState state)
-        {
-            Console.WriteLine($"Performing operation with item type {IntrinsicState}");
-            Console.WriteLine($"Position: {state.Position}, Health: {state.Health}, Id: {state.Id}");
+            Type = type;
+            ItemType = type;
         }
     }
 
-    // Rest of the concrete implementations remain the same
-    public class BlankFlyweight : BaseFlyweight
+    public class UnsharedConcreteFlyweight : IFlyweightItem
     {
-        public BlankFlyweight() : base(ItemType.Blank) { }
+        string IItem.Id { get; set; }
+        public int Id { get; private set; }
+        public ItemType Type { get; }
+        public IItemStats Stats { get; set; }
+        public ItemType ItemType { get; set; }
+
+        internal int Health { get; set; }
+        internal Vector2 Position { get; set; }
+
+        public IEnumerable<AttackDeclaration> Attack(IArenaGrid opponentsArenaGrid, int attackingGridItemId)
+        {
+            return Enumerable.Empty<AttackDeclaration>();
+        }
+
+        public UnsharedConcreteFlyweight(ItemType type)
+        {
+            Type = type;
+            ItemType = type;
+        }
+
+        internal void SetId(int id)
+        {
+            Id = id;
+        }
     }
 
-    public class PlaneFlyweight : BaseFlyweight
-    {
-        public PlaneFlyweight() : base(ItemType.Plane) { }
-    }
-
-    public class RocketsFlyweight : BaseFlyweight
-    {
-        public RocketsFlyweight() : base(ItemType.Rockets) { }
-    }
-
-    public class ShieldFlyweight : BaseFlyweight
-    {
-        public ShieldFlyweight() : base(ItemType.Shield) { }
-    }
-
-    public class PlaceholderFlyweight : BaseFlyweight
-    {
-        public PlaceholderFlyweight() : base(ItemType.Placeholder) { }
-    }
-
-    // ItemFactory and the rest of the code remains exactly the same
     public class ItemFactory
     {
-        private static readonly Dictionary<ItemType, IItem> _itemCache = new();
+        private static readonly Dictionary<ItemType, IFlyweightItem> _itemCache = new();
 
-        public static IItem GetItem(ItemType itemType)
+        public static IFlyweightItem GetItem(ItemType itemType, bool shared = true)
         {
-            if (!_itemCache.ContainsKey(itemType))
+            if (shared)
             {
-                Console.WriteLine($"Creating new flyweight item of type: {itemType}");
-                _itemCache[itemType] = CreateNewItem(itemType);
+                if (!_itemCache.ContainsKey(itemType))
+                {
+                    Console.WriteLine($"Creating new flyweight item of type: {itemType}");
+                    _itemCache[itemType] = new ConcreteFlyweight(itemType);
+                }
+                else
+                {
+                    Console.WriteLine($"Reusing existing flyweight item of type: {itemType}");
+                }
+                return _itemCache[itemType];
             }
-            else
-            {
-                Console.WriteLine($"Reusing existing flyweight item of type: {itemType}");
-            }
-            return _itemCache[itemType];
-        }
 
-        private static IItem CreateNewItem(ItemType itemType)
-        {
-            return itemType switch
-            {
-                ItemType.Blank => new BlankFlyweight(),
-                ItemType.Plane => new PlaneFlyweight(),
-                ItemType.Rockets => new RocketsFlyweight(),
-                ItemType.Shield => new ShieldFlyweight(),
-                ItemType.Placeholder => new PlaceholderFlyweight(),
-                _ => throw new ArgumentOutOfRangeException(),
-            };
+            return new UnsharedConcreteFlyweight(itemType);
         }
     }
 
     public class GridItem
     {
-        public int Id { get; set; }
-        public ItemType ItemType { get; set; }
-        public IItem Item => ItemFactory.GetItem(ItemType);
-        public int Health { get; set; }
-        public Vector2 Position { get; set; }
+        internal readonly IFlyweightItem _item;
 
-        public void PerformOperation()
+        public GridItem(ItemType itemType, bool shared = true)
         {
-            if (Item is IFlyweight flyweight)
+            _item = ItemFactory.GetItem(itemType, shared);
+        }
+
+        public ItemType ItemType => _item.ItemType;
+        public int Id => _item.Id;
+    }
+
+    public static class GridItemExtensions
+    {
+        public static int GetHealth(this GridItem gridItem)
+        {
+            return gridItem._item is UnsharedConcreteFlyweight unshared ? unshared.Health : 0;
+        }
+
+        public static void SetHealth(this GridItem gridItem, int value)
+        {
+            if (gridItem._item is UnsharedConcreteFlyweight unshared)
             {
-                var state = new ExtrinsicState
-                {
-                    Id = Id,
-                    Health = Health,
-                    Position = Position
-                };
-                flyweight.Operation(state);
+                unshared.Health = value;
+            }
+        }
+
+        public static Vector2 GetPosition(this GridItem gridItem)
+        {
+            return gridItem._item is UnsharedConcreteFlyweight unshared ? unshared.Position : default;
+        }
+
+        public static void SetPosition(this GridItem gridItem, Vector2 value)
+        {
+            if (gridItem._item is UnsharedConcreteFlyweight unshared)
+            {
+                unshared.Position = value;
             }
         }
     }
 
     public static class ItemHelpers
     {
-        public static IItem CreateItemByType(ItemType item)
+        public static IItem CreateItemByType(ItemType item, bool shared = true)
         {
-            return ItemFactory.GetItem(item);
+            return ItemFactory.GetItem(item, shared);
         }
 
         public static int GetAttackingItemRowId(int attackingGridItemId)
@@ -144,12 +143,37 @@ namespace TowerDefense.Api.GameLogic.Items
                 .GridItems.Where(x =>
                     (int)(x.Id / Constants.TowerDefense.MaxGridGridItemsInRow) == rowId
                 )
-                .Select(x => new GridItem
+                .Select(x =>
                 {
-                    Id = x.Id,
-                    ItemType = x.ItemType,
+                    var gridItem = new GridItem(x.ItemType, shared: false);
+                    if (x.Id != 0 && gridItem._item is UnsharedConcreteFlyweight unshared)
+                    {
+                        unshared.SetId(x.Id);
+
+                        // Since x is Grid.GridItem, we'll need to get these values directly
+                        // or through a different mechanism that's available on Grid.GridItem
+                        if (x is IGridItemProperties props)
+                        {
+                            unshared.Health = props.Health;
+                            unshared.Position = props.Position;
+                        }
+                        // Alternative approach if the interface isn't available
+                        else if (x.GetType().GetProperty("Health") != null && x.GetType().GetProperty("Position") != null)
+                        {
+                            unshared.Health = (int)x.GetType().GetProperty("Health").GetValue(x);
+                            unshared.Position = (Vector2)x.GetType().GetProperty("Position").GetValue(x);
+                        }
+                    }
+                    return gridItem;
                 })
                 .ToList();
+        }
+
+        // Interface that should be implemented by Grid.GridItem
+        public interface IGridItemProperties
+        {
+            int Health { get; }
+            Vector2 Position { get; }
         }
 
         public static IEnumerable<int> GetAttackedGridItems(
@@ -160,12 +184,14 @@ namespace TowerDefense.Api.GameLogic.Items
             var attackerRowId = GetAttackingItemRowId(attackingGridItemId);
             var affectedGridItems = new List<int>();
             var row = opponentsArenaGrid.GetAttackedRowItems(attackerRowId);
+
             foreach (var gridItem in row)
             {
                 if (!IsItemDamageable(gridItem))
                     continue;
                 affectedGridItems.Add(gridItem.Id);
             }
+
             return affectedGridItems;
         }
 
@@ -173,6 +199,7 @@ namespace TowerDefense.Api.GameLogic.Items
         {
             if (gridItem == null)
                 return false;
+
             var itemType = gridItem.ItemType;
             return itemType != ItemType.Blank && itemType != ItemType.Placeholder;
         }
