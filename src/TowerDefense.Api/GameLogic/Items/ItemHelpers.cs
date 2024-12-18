@@ -56,20 +56,12 @@ namespace TowerDefense.Api.GameLogic.Items
         }
     }
 
-    // Concrete item implementations
-    public class Blank
+    // Modified GridItem to work with flyweight pattern
+    public class Flyweight
     {
-        private readonly IFlyweight _flyweight;
-        private readonly ExtrinsicState _extrinsicState;
-
-        public Blank()
-        {
-            _flyweight = FlyweightFactory.Instance.GetFlyweight("Blank");
-            _extrinsicState = new ExtrinsicState();
-        }
-
-        public bool IsDestructible => false;
-        public int Health => 0;
+        public int Id { get; set; }
+        public ItemType ItemType { get; set; } // Store the type instead of the instance
+        public IItem Item => ItemFactory.GetItem(ItemType); // Get shared instance on demand
 
         public void SetGridPosition(int position)
         {
@@ -81,28 +73,24 @@ namespace TowerDefense.Api.GameLogic.Items
     // Helper class for item operations
     public static class ItemHelpers
     {
-        public static IItem CreateItemByType(ItemType item)
-        {
-            return item switch
-            {
-             
-                ItemType.Plane => new Plane(),
-                ItemType.Rockets => new Rockets(),
-                ItemType.Shield => new Shield(),
-                ItemType.Placeholder => new Placeholder(),
-                _ => throw new ArgumentOutOfRangeException()
-            };
-        }
+        
 
         public static int GetAttackingItemRowId(int attackingGridItemId)
         {
             return attackingGridItemId / Constants.TowerDefense.MaxGridGridItemsInRow;
         }
 
-        public static List<Grid.GridItem> GetAttackedRowItems(this Grid.IArenaGrid arenaGrid, int rowId)
+        public static List<Flyweight> GetAttackedRowItems(this IArenaGrid arenaGrid, int rowId)
         {
-            return arenaGrid.GridItems
-                .Where(x => (int)(x.Id / Constants.TowerDefense.MaxGridGridItemsInRow) == rowId)
+            return arenaGrid
+                .GridItems.Where(x =>
+                    (int)(x.Id / Constants.TowerDefense.MaxGridGridItemsInRow) == rowId
+                )
+                .Select(x => new Flyweight
+                {
+                    Id = x.Id,
+                    ItemType = x.ItemType,
+                })
                 .ToList();
         }
 
@@ -121,7 +109,7 @@ namespace TowerDefense.Api.GameLogic.Items
             return affectedGridItems;
         }
 
-        public static bool IsItemDamageable(Grid.GridItem gridItem)
+        public static bool IsItemDamageable(Flyweight gridItem)
         {
             if (gridItem == null) return false;
             return gridItem.Item is not Blank && gridItem.Item is not Placeholder;
