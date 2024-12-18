@@ -19,7 +19,7 @@ jobs:
         dotnet-version: '6.0.x'
 
     - name: Install CSharpier
-      run: dotnet tool install --global csharpier
+      run: dotnet tool install --global csharpier --version 0.29.2
 
     - name: Check Format
       working-directory: src/TowerDefense.Api
