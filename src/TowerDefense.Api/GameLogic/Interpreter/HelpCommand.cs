@@ -16,6 +16,15 @@ public class HelpCommand : ICommand
 
     public void Interpret(State state)
     {
+        Console.WriteLine("You can execute commands to change the state of the game");
+        Console.WriteLine("Current state values:");
+        Console.WriteLine(
+            $"Health: Player1 - {state.Players[0].Health}, Player2 - {state.Players[1].Health}"
+        );
+        Console.WriteLine(
+            $"Cash: Player1 - {state.Players[0].Money}, Player2 - {state.Players[1].Money}"
+        );
+        Console.WriteLine();
         Console.WriteLine("Available commands:");
         foreach (var (command, description) in CommandHelp)
         {
