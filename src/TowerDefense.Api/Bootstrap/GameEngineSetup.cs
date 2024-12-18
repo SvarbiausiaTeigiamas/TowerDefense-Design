@@ -1,6 +1,8 @@
 using TowerDefense.Api.GameLogic.Handlers;
 using TowerDefense.Api.GameLogic.Player.Memento;
 using TowerDefense.Api.Hubs;
+using TowerDefense.Api.GameLogic.GameState;
+
 
 namespace TowerDefense.Api.Bootstrap
 {
@@ -28,6 +30,18 @@ namespace TowerDefense.Api.Bootstrap
             serviceCollection.AddTransient<IGameHandler, GameHandler>();
             serviceCollection.AddSingleton<ICareTaker, CareTaker>();
             serviceCollection.AddTransient<IPerkHandler, PerkHandler>();
+            
+            // Register GameContext and State
+            serviceCollection.AddSingleton<State>(); 
+            serviceCollection.AddSingleton<GameContext>(serviceProvider =>
+            {
+                var state = serviceProvider.GetRequiredService<State>();
+                var setupHandler = serviceProvider.GetRequiredService<IInitialGameSetupHandler>();
+                var turnHandler = serviceProvider.GetRequiredService<ITurnHandler>();
+                var gameHandler = serviceProvider.GetRequiredService<IGameHandler>();
+
+                return new GameContext(state, setupHandler, turnHandler, gameHandler);
+            });
         }
     }
 }

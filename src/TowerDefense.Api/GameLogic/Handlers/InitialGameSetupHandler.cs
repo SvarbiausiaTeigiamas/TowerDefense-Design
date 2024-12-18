@@ -14,12 +14,18 @@ namespace TowerDefense.Api.GameLogic.Handlers
         private readonly INotificationHub _notificationHub;
         private readonly ICareTaker _caretaker;
         private readonly PlayerSetupHandler _playerSetupChain;
+        private readonly GameContext _gameContext;
 
-        public InitialGameSetupHandler(INotificationHub notificationHub, ICareTaker caretaker)
+        public InitialGameSetupHandler(
+            INotificationHub notificationHub,
+            ICareTaker caretaker,
+            GameContext gameContext
+        )
         {
             _gameState = GameOriginator.GameState;
             _notificationHub = notificationHub;
             _caretaker = caretaker;
+            _gameContext = gameContext;
 
             // Initialize the chain
             var addPlayerHandler = new AddPlayerHandler(_gameState);
@@ -39,7 +45,12 @@ namespace TowerDefense.Api.GameLogic.Handlers
         public IPlayer AddNewPlayer(string playerName)
         {
             var newPlayer = new FirstLevelPlayer { Name = playerName };
-            return _playerSetupChain.Handle(newPlayer);
+            var player = _playerSetupChain.Handle(newPlayer);
+
+            // Instead of old logic, now we rely on state pattern flow
+            _gameContext.AddPlayer(playerName);
+
+            return player;
         }
 
         public void SetConnectionIdForPlayer(string playerName, string connectionId)
@@ -60,6 +71,7 @@ namespace TowerDefense.Api.GameLogic.Handlers
             _caretaker.AddSnapshot(snapshot);
             _caretaker.AddSnapshot(snapshot);
 
+            await _gameContext.TryStartGame();
             await _notificationHub.NotifyGameStart(_gameState.Players[0], _gameState.Players[1]);
         }
 
