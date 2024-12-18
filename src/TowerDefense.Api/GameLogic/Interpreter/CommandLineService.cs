@@ -1,21 +1,22 @@
+using TowerDefense.Api.GameLogic.GameState;
+
 namespace TowerDefense.Api.GameLogic.Interpreter;
 
 public class CommandLineService : BackgroundService
 {
-    private readonly CommandRegistry _registry;
     private readonly ILogger<CommandLineService> _logger;
+    private readonly CommandParser _parser;
 
-    public CommandLineService(CommandRegistry registry, ILogger<CommandLineService> logger)
+    public CommandLineService(ILogger<CommandLineService> logger)
     {
-        _registry = registry;
         _logger = logger;
+        _parser = new CommandParser();
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Command line service started");
 
-        // Run command processing in a separate task
         _ = Task.Run(
             () =>
             {
@@ -27,24 +28,15 @@ public class CommandLineService : BackgroundService
                     if (string.IsNullOrEmpty(input))
                         continue;
 
-                    var parts = input.Split(' ');
-                    var commandName = parts[0].ToLower();
-                    var args = parts.Skip(1).ToArray();
-
-                    if (_registry.TryGetCommand(commandName, out ICommand? command))
+                    try
                     {
-                        try
-                        {
-                            command?.Execute(args);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, "Error executing command {Command}", commandName);
-                        }
+                        var expression = _parser.Parse(input);
+                        expression.Interpret(GameOriginator.GameState);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        Console.WriteLine($"Unknown command: {commandName}");
+                        _logger.LogError(ex, "Error executing command");
+                        Console.WriteLine($"Error: {ex.Message}");
                     }
                 }
 
@@ -53,7 +45,6 @@ public class CommandLineService : BackgroundService
             stoppingToken
         );
 
-        // Keep the service alive without blocking
         while (!stoppingToken.IsCancellationRequested)
         {
             await Task.Delay(1000, stoppingToken);

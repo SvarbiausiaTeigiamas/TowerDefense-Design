@@ -6,9 +6,9 @@ public class ResetHealthCommand : ICommand
 {
     public string Description => "Resets both players health and armor";
 
-    public void Execute(string[] args = null)
+    public void Interpret(State state)
     {
-        foreach (var player in GameOriginator.GameState.Players)
+        foreach (var player in state.Players)
         {
             player.Health = 100;
             player.Armor = 100;
