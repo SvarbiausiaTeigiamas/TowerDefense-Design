@@ -17,13 +17,8 @@ builder.Services.AddSignalR();
 builder.Services.SetupGameEngine();
 
 // Set up Interpreter pattern
-builder.Services.AddSingleton<CommandRegistry>();
 builder.Services.AddHostedService<CommandLineService>();
-var registry = new CommandRegistry();
-registry.RegisterCommand("help", new HelpCommand(registry));
-registry.RegisterCommand("reset-health", new ResetHealthCommand());
-registry.RegisterCommand("add-cash", new AddCashCommand());
-builder.Services.AddSingleton(registry);
+builder.Services.AddSingleton<CommandParser>();
 
 builder.Services.SetupAutoMapper();
 

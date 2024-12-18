@@ -4,28 +4,20 @@ namespace TowerDefense.Api.GameLogic.Interpreter;
 
 public class AddCashCommand : ICommand
 {
-    public string Description => "Adds specified amount of cash to both players";
+    private readonly int _amount;
 
-    public void Execute(string[] args = null)
+    public AddCashCommand(int amount)
     {
-        if (args == null || args.Length == 0)
+        _amount = amount;
+    }
+
+    public void Interpret(State state)
+    {
+        foreach (var player in state.Players)
         {
-            Console.WriteLine("Please specify an amount");
-            return;
+            player.Money += _amount;
         }
 
-        if (int.TryParse(args[0], out var amount))
-        {
-            foreach (var player in GameOriginator.GameState.Players)
-            {
-                player.Money += int.Parse(args[0]);
-            }
-
-            Console.WriteLine($"Added {amount} cash to both players");
-        }
-        else
-        {
-            Console.WriteLine("Invalid amount specified");
-        }
+        Console.WriteLine($"Added {_amount} cash to all players");
     }
 }
