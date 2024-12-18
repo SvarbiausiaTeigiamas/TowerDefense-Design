@@ -28,7 +28,15 @@ public class PlayerHealthMemento : IMemento
         var player1 = GameOriginator.GameState.Players[0];
         var player2 = GameOriginator.GameState.Players[1];
 
+        Console.WriteLine(
+            $"Current health values: Player1: {player1.Health}, Player2: {player2.Health}"
+        );
+
         player1.Health = _healthSnapshot.Player1Health;
         player2.Health = _healthSnapshot.Player2Health;
+
+        Console.WriteLine(
+            $"Health values after Memento: Player1: {player1.Health}, Player2: {player2.Health}"
+        );
     }
 }
