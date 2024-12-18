@@ -1,135 +1,97 @@
 using System.Numerics;
-using TowerDefense.Api.GameLogic.Attacks;
 using TowerDefense.Api.GameLogic.Grid;
 using TowerDefense.Api.GameLogic.Items.Models;
+using Plane = TowerDefense.Api.GameLogic.Items.Models.Plane;
 
 namespace TowerDefense.Api.GameLogic.Items
 {
-    public interface IFlyweightItem : IItem
+    // Flyweight interfaces and classes
+    public interface IFlyweight
     {
-        new ItemType Type { get; }
-        new int Id { get; }
+        void Operation(ExtrinsicState state);
     }
 
-    public class ConcreteFlyweight : IFlyweightItem
+    public class ExtrinsicState
     {
-        string IItem.Id { get; set; }
-        public int Id { get; }
-        public ItemType Type { get; }
-        public IItemStats Stats { get; set; }
-        public ItemType ItemType { get; set; }
-
-        public IEnumerable<AttackDeclaration> Attack(IArenaGrid opponentsArenaGrid, int attackingGridItemId)
-        {
-            return Enumerable.Empty<AttackDeclaration>();
-        }
-
-        public ConcreteFlyweight(ItemType type)
-        {
-            Type = type;
-            ItemType = type;
-        }
+        public int GridPosition { get; set; }
     }
 
-    public class UnsharedConcreteFlyweight : IFlyweightItem
+    public class IntrinsicState
     {
-        string IItem.Id { get; set; }
-        public int Id { get; private set; }
-        public ItemType Type { get; }
-        public IItemStats Stats { get; set; }
-        public ItemType ItemType { get; set; }
+        public readonly int Health = 0;
+        public readonly bool IsDestructible = false;
+    }
 
-        internal int Health { get; set; }
-        internal Vector2 Position { get; set; }
+    public class ConcreteFlyweight : IFlyweight
+    {
+        private readonly IntrinsicState _intrinsicState;
 
-        public IEnumerable<AttackDeclaration> Attack(IArenaGrid opponentsArenaGrid, int attackingGridItemId)
+        public ConcreteFlyweight()
         {
-            return Enumerable.Empty<AttackDeclaration>();
+            _intrinsicState = new IntrinsicState();
         }
 
-        public UnsharedConcreteFlyweight(ItemType type)
+        public void Operation(ExtrinsicState state)
         {
-            Type = type;
-            ItemType = type;
-        }
-
-        internal void SetId(int id)
-        {
-            Id = id;
+            // Implementation for shared operations
         }
     }
 
-    public class ItemFactory
+    public class FlyweightFactory
     {
-        private static readonly Dictionary<ItemType, IFlyweightItem> _itemCache = new();
+        private static readonly FlyweightFactory _instance = new();
+        private readonly Dictionary<string, IFlyweight> _flyweights = new();
 
-        public static IFlyweightItem GetItem(ItemType itemType, bool shared = true)
+        private FlyweightFactory() { }
+
+        public static FlyweightFactory Instance => _instance;
+
+        public IFlyweight GetFlyweight(string key)
         {
-            if (shared)
+            if (!_flyweights.ContainsKey(key))
             {
-                if (!_itemCache.ContainsKey(itemType))
-                {
-                    Console.WriteLine($"Creating new flyweight item of type: {itemType}");
-                    _itemCache[itemType] = new ConcreteFlyweight(itemType);
-                }
-                else
-                {
-                    Console.WriteLine($"Reusing existing flyweight item of type: {itemType}");
-                }
-                return _itemCache[itemType];
+                _flyweights[key] = new ConcreteFlyweight();
             }
-
-            return new UnsharedConcreteFlyweight(itemType);
+            return _flyweights[key];
         }
     }
 
-    public class GridItem
+    // Concrete item implementations
+    public class Blank
     {
-        internal readonly IFlyweightItem _item;
+        private readonly IFlyweight _flyweight;
+        private readonly ExtrinsicState _extrinsicState;
 
-        public GridItem(ItemType itemType, bool shared = true)
+        public Blank()
         {
-            _item = ItemFactory.GetItem(itemType, shared);
+            _flyweight = FlyweightFactory.Instance.GetFlyweight("Blank");
+            _extrinsicState = new ExtrinsicState();
         }
 
-        public ItemType ItemType => _item.ItemType;
-        public int Id => _item.Id;
-    }
+        public bool IsDestructible => false;
+        public int Health => 0;
 
-    public static class GridItemExtensions
-    {
-        public static int GetHealth(this GridItem gridItem)
+        public void SetGridPosition(int position)
         {
-            return gridItem._item is UnsharedConcreteFlyweight unshared ? unshared.Health : 0;
-        }
-
-        public static void SetHealth(this GridItem gridItem, int value)
-        {
-            if (gridItem._item is UnsharedConcreteFlyweight unshared)
-            {
-                unshared.Health = value;
-            }
-        }
-
-        public static Vector2 GetPosition(this GridItem gridItem)
-        {
-            return gridItem._item is UnsharedConcreteFlyweight unshared ? unshared.Position : default;
-        }
-
-        public static void SetPosition(this GridItem gridItem, Vector2 value)
-        {
-            if (gridItem._item is UnsharedConcreteFlyweight unshared)
-            {
-                unshared.Position = value;
-            }
+            _extrinsicState.GridPosition = position;
+            _flyweight.Operation(_extrinsicState);
         }
     }
 
+    // Helper class for item operations
     public static class ItemHelpers
     {
-        public static IItem CreateItemByType(ItemType item, bool shared = true)
+        public static IItem CreateItemByType(ItemType item)
         {
-            return ItemFactory.GetItem(item, shared);
+            return item switch
+            {
+             
+                ItemType.Plane => new Plane(),
+                ItemType.Rockets => new Rockets(),
+                ItemType.Shield => new Shield(),
+                ItemType.Placeholder => new Placeholder(),
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
 
         public static int GetAttackingItemRowId(int attackingGridItemId)
@@ -137,49 +99,14 @@ namespace TowerDefense.Api.GameLogic.Items
             return attackingGridItemId / Constants.TowerDefense.MaxGridGridItemsInRow;
         }
 
-        public static List<GridItem> GetAttackedRowItems(this IArenaGrid arenaGrid, int rowId)
+        public static List<Grid.GridItem> GetAttackedRowItems(this Grid.IArenaGrid arenaGrid, int rowId)
         {
-            return arenaGrid
-                .GridItems.Where(x =>
-                    (int)(x.Id / Constants.TowerDefense.MaxGridGridItemsInRow) == rowId
-                )
-                .Select(x =>
-                {
-                    var gridItem = new GridItem(x.ItemType, shared: false);
-                    if (x.Id != 0 && gridItem._item is UnsharedConcreteFlyweight unshared)
-                    {
-                        unshared.SetId(x.Id);
-
-                        // Since x is Grid.GridItem, we'll need to get these values directly
-                        // or through a different mechanism that's available on Grid.GridItem
-                        if (x is IGridItemProperties props)
-                        {
-                            unshared.Health = props.Health;
-                            unshared.Position = props.Position;
-                        }
-                        // Alternative approach if the interface isn't available
-                        else if (x.GetType().GetProperty("Health") != null && x.GetType().GetProperty("Position") != null)
-                        {
-                            unshared.Health = (int)x.GetType().GetProperty("Health").GetValue(x);
-                            unshared.Position = (Vector2)x.GetType().GetProperty("Position").GetValue(x);
-                        }
-                    }
-                    return gridItem;
-                })
+            return arenaGrid.GridItems
+                .Where(x => (int)(x.Id / Constants.TowerDefense.MaxGridGridItemsInRow) == rowId)
                 .ToList();
         }
 
-        // Interface that should be implemented by Grid.GridItem
-        public interface IGridItemProperties
-        {
-            int Health { get; }
-            Vector2 Position { get; }
-        }
-
-        public static IEnumerable<int> GetAttackedGridItems(
-            IArenaGrid opponentsArenaGrid,
-            int attackingGridItemId
-        )
+        public static IEnumerable<int> GetAttackedGridItems(Grid.IArenaGrid opponentsArenaGrid, int attackingGridItemId)
         {
             var attackerRowId = GetAttackingItemRowId(attackingGridItemId);
             var affectedGridItems = new List<int>();
@@ -187,21 +114,19 @@ namespace TowerDefense.Api.GameLogic.Items
 
             foreach (var gridItem in row)
             {
-                if (!IsItemDamageable(gridItem))
-                    continue;
+                if (!IsItemDamageable(gridItem)) continue;
                 affectedGridItems.Add(gridItem.Id);
             }
 
             return affectedGridItems;
         }
 
-        public static bool IsItemDamageable(GridItem gridItem)
+        public static bool IsItemDamageable(Grid.GridItem gridItem)
         {
-            if (gridItem == null)
-                return false;
-
-            var itemType = gridItem.ItemType;
-            return itemType != ItemType.Blank && itemType != ItemType.Placeholder;
+            if (gridItem == null) return false;
+            return gridItem.Item is not Blank && gridItem.Item is not Placeholder;
         }
     }
 }
+
+
