@@ -13,7 +13,7 @@ namespace TowerDefense.Api.GameLogic.Grid
                 var character = gridLayoutRemovedWhiteSpace[i].ToString();
                 var type = (ItemType)int.Parse(character);
 
-                gridItems[i] = new GridItem { Id = i, Item = ItemHelpers.CreateItemByType(type) };
+                gridItems[i] = new GridItem { Id = i, Item = FlyweightFactory.GetItem(type) };
             }
         }
     }

@@ -5,7 +5,7 @@ using Plane = TowerDefense.Api.GameLogic.Items.Models.Plane;
 
 namespace TowerDefense.Api.GameLogic.Items
 {
-    public class ItemFactory
+    public class FlyweightFactory
     {
         private static readonly Dictionary<ItemType, IItem> _itemCache = new();
 
@@ -37,12 +37,11 @@ namespace TowerDefense.Api.GameLogic.Items
         }
     }
 
-    // Modified GridItem to work with flyweight pattern
-    public class GridItem
+    public class ExtrinsicFlyweight
     {
         public int Id { get; set; }
         public ItemType ItemType { get; set; } // Store the type instead of the instance
-        public IItem Item => ItemFactory.GetItem(ItemType); // Get shared instance on demand
+        public IItem Item => FlyweightFactory.GetItem(ItemType); // Get shared instance on demand
 
         public int Health { get; set; }
         public Vector2 Position { get; set; }
@@ -50,28 +49,21 @@ namespace TowerDefense.Api.GameLogic.Items
 
     public static class ItemHelpers
     {
-        public static IItem CreateItemByType(ItemType item)
-        {
-            return ItemFactory.GetItem(item); // Use factory instead of direct creation
-        }
-
         public static int GetAttackingItemRowId(int attackingGridItemId)
         {
             return attackingGridItemId / Constants.TowerDefense.MaxGridGridItemsInRow;
         }
 
-        public static List<GridItem> GetAttackedRowItems(this IArenaGrid arenaGrid, int rowId)
+        public static List<ExtrinsicFlyweight> GetAttackedRowItems(
+            this IArenaGrid arenaGrid,
+            int rowId
+        )
         {
             return arenaGrid
                 .GridItems.Where(x =>
                     (int)(x.Id / Constants.TowerDefense.MaxGridGridItemsInRow) == rowId
                 )
-                .Select(x => new GridItem
-                {
-                    Id = x.Id,
-                    ItemType = x.ItemType,
-                    // Copy other necessary properties
-                })
+                .Select(x => new ExtrinsicFlyweight { Id = x.Id, ItemType = x.ItemType })
                 .ToList();
         }
 
@@ -95,7 +87,7 @@ namespace TowerDefense.Api.GameLogic.Items
             return affectedGridItems;
         }
 
-        public static bool IsItemDamageable(GridItem gridItem)
+        public static bool IsItemDamageable(ExtrinsicFlyweight gridItem)
         {
             if (gridItem == null)
                 return false;
