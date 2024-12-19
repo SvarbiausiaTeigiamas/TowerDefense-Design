@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using TowerDefense.Api.Contracts.Command;
 using TowerDefense.Api.Contracts.Player;
 using TowerDefense.Api.Contracts.Turn;
+using TowerDefense.Api.GameLogic.GameState;
 using TowerDefense.Api.GameLogic.Handlers;
 
 namespace TowerDefense.Api.Controllers
@@ -16,13 +17,15 @@ namespace TowerDefense.Api.Controllers
         private readonly IMapper _mapper;
         private readonly IGameHandler _gameHandler;
         private readonly ITurnHandler _turnHandler;
+        private readonly GameContext _gameContext;
 
         public PlayerController(
             IGameHandler gameHandler,
             IInitialGameSetupHandler initialGameSetupHandler,
             IPlayerHandler playerHandler,
             ITurnHandler turnHandler,
-            IMapper mapper
+            IMapper mapper,
+            GameContext gameContext
         )
         {
             _gameHandler = gameHandler;
@@ -30,6 +33,7 @@ namespace TowerDefense.Api.Controllers
             _playerHandler = playerHandler;
             _turnHandler = turnHandler;
             _mapper = mapper;
+            _gameContext = gameContext;
         }
 
         [HttpPost]
@@ -38,6 +42,7 @@ namespace TowerDefense.Api.Controllers
         )
         {
             var player = _initialGameSetupHandler.AddNewPlayer(addPlayerRequest.PlayerName);
+            _gameContext.AddPlayer(addPlayerRequest.PlayerName); // Inform the state machine
 
             var addNewPlayerResponse = _mapper.Map<AddNewPlayerResponse>(player);
 
@@ -77,8 +82,8 @@ namespace TowerDefense.Api.Controllers
             var player = _playerHandler.GetPlayer(request.PlayerName);
 
             var inventory = player.Inventory;
-            var requestedItem = inventory.Items.FirstOrDefault(x =>
-                x.Id == request.InventoryItemId
+            var requestedItem = inventory.Items.FirstOrDefault(
+                x => x.Id == request.InventoryItemId
             );
 
             if (requestedItem == null)

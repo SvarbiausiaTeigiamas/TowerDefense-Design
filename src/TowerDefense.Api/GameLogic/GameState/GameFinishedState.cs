@@ -1,4 +1,6 @@
-﻿using TowerDefense.Api.GameLogic.Handlers;
+﻿using System;
+using System.Threading.Tasks;
+using TowerDefense.Api.GameLogic.Handlers;
 
 namespace TowerDefense.Api.GameLogic.GameState;
 
@@ -8,23 +10,24 @@ public class GameFinishedState : IGameState
 
     public GameFinishedState(IGameHandler gameHandler)
     {
+        Console.WriteLine("GameFinishedState: Initialized");
         _gameHandler = gameHandler;
     }
 
     public void AddPlayer(string playerName)
     {
-        Console.WriteLine("GameFinishedState: Can't add players, game ended. Consider resetting.");
+        Console.WriteLine("GameFinishedState: AddPlayer called but game is finished.");
     }
 
     public Task TryStartGame()
     {
-        Console.WriteLine("GameFinishedState: Can't start game, already ended. Reset first.");
+        Console.WriteLine("GameFinishedState: TryStartGame called but game is finished.");
         return Task.CompletedTask;
     }
 
     public Task EndTurn(string playerName)
     {
-        Console.WriteLine("GameFinishedState: Game ended. No turns to end.");
+        Console.WriteLine("GameFinishedState: EndTurn called but game is finished.");
         return Task.CompletedTask;
     }
 

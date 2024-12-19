@@ -1,56 +1,64 @@
-﻿using TowerDefense.Api.GameLogic.Handlers;
+﻿using System;
+using System.Threading.Tasks;
 
-namespace TowerDefense.Api.GameLogic.GameState;
-
-public class WaitingForPlayersState : IGameState
+namespace TowerDefense.Api.GameLogic.GameState
 {
-    private readonly GameContext _context;
-    private readonly State _gameState;
-    private readonly IInitialGameSetupHandler _setupHandler;
-
-    public WaitingForPlayersState(GameContext context, State gameState, IInitialGameSetupHandler setupHandler)
+    public class WaitingForPlayersState : IGameState
     {
-        _context = context;
-        _gameState = gameState;
-        _setupHandler = setupHandler;
-    }
+        private readonly GameContext _context;
+        private readonly State _gameState;
 
-    public void AddPlayer(string playerName)
-    {
-        Console.WriteLine("WaitingForPlayersState: Adding new player...");
-        _setupHandler.AddNewPlayer(playerName);
-        Console.WriteLine($"Player '{playerName}' added. Active players: {_gameState.ActivePlayers}");
-
-        if (_gameState.ActivePlayers == Constants.TowerDefense.MaxNumberOfPlayers)
+        public WaitingForPlayersState(GameContext context, State gameState)
         {
-            Console.WriteLine("Maximum players reached. Transitioning to InProgressState...");
-            _context.SetState(_context.InProgressState);
+            Console.WriteLine("WaitingForPlayersState: Initialized");
+            _context = context;
+            _gameState = gameState;
         }
-    }
 
-    public async Task TryStartGame()
-    {
-        Console.WriteLine("WaitingForPlayersState: Attempting to start game...");
-        if (_gameState.ActivePlayers == Constants.TowerDefense.MaxNumberOfPlayers)
+        public void AddPlayer(string playerName)
         {
-            await _setupHandler.TryStartGame();
-            Console.WriteLine("Game started. State should now be InProgressState.");
+            Console.WriteLine(
+                $"WaitingForPlayersState: A new player '{playerName}' is now in the game. ActivePlayers: {_gameState.ActivePlayers}"
+            );
+            if (_gameState.ActivePlayers == Constants.TowerDefense.MaxNumberOfPlayers)
+            {
+                Console.WriteLine(
+                    "WaitingForPlayersState: Max players reached. Ready to transition to InProgressState when TryStartGame is called."
+                );
+            }
         }
-        else
+
+        public Task TryStartGame()
         {
-            Console.WriteLine("Not enough players to start the game yet.");
+            Console.WriteLine(
+                "WaitingForPlayersState: TryStartGame called. Checking if we can transition..."
+            );
+            if (_gameState.ActivePlayers == Constants.TowerDefense.MaxNumberOfPlayers)
+            {
+                Console.WriteLine(
+                    "WaitingForPlayersState: Conditions met, transitioning to InProgressState..."
+                );
+                _context.SetState(_context.InProgressState);
+            }
+            else
+            {
+                Console.WriteLine("WaitingForPlayersState: Still waiting for more players...");
+            }
+            return Task.CompletedTask;
         }
-    }
 
-    public Task EndTurn(string playerName)
-    {
-        Console.WriteLine("WaitingForPlayersState: EndTurn called but game not in progress yet.");
-        return Task.CompletedTask;
-    }
+        public Task EndTurn(string playerName)
+        {
+            Console.WriteLine(
+                "WaitingForPlayersState: EndTurn called but we are still waiting for players. No action taken."
+            );
+            return Task.CompletedTask;
+        }
 
-    public Task FinishGame(string winnerName)
-    {
-        Console.WriteLine("WaitingForPlayersState: FinishGame called but no game in progress.");
-        return Task.CompletedTask;
+        public Task FinishGame(string winnerName)
+        {
+            Console.WriteLine("WaitingForPlayersState: FinishGame called but no game in progress.");
+            return Task.CompletedTask;
+        }
     }
 }

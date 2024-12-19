@@ -3,7 +3,6 @@ using TowerDefense.Api.GameLogic.Player.Memento;
 using TowerDefense.Api.Hubs;
 using TowerDefense.Api.GameLogic.GameState;
 
-
 namespace TowerDefense.Api.Bootstrap
 {
     public static class GameEngineSetup
@@ -30,17 +29,16 @@ namespace TowerDefense.Api.Bootstrap
             serviceCollection.AddTransient<IGameHandler, GameHandler>();
             serviceCollection.AddSingleton<ICareTaker, CareTaker>();
             serviceCollection.AddTransient<IPerkHandler, PerkHandler>();
-            
-            // Register GameContext and State
-            serviceCollection.AddSingleton<State>(); 
+
+            // Register State and GameContext
+            serviceCollection.AddSingleton<State>();
             serviceCollection.AddSingleton<GameContext>(serviceProvider =>
             {
+                Console.WriteLine("GameEngineSetup: Creating GameContext...");
                 var state = serviceProvider.GetRequiredService<State>();
-                var setupHandler = serviceProvider.GetRequiredService<IInitialGameSetupHandler>();
                 var turnHandler = serviceProvider.GetRequiredService<ITurnHandler>();
                 var gameHandler = serviceProvider.GetRequiredService<IGameHandler>();
-
-                return new GameContext(state, setupHandler, turnHandler, gameHandler);
+                return new GameContext(state, turnHandler, gameHandler);
             });
         }
     }

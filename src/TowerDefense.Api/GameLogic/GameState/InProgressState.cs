@@ -9,8 +9,14 @@ public class InProgressState : IGameState
     private readonly ITurnHandler _turnHandler;
     private readonly IGameHandler _gameHandler;
 
-    public InProgressState(GameContext context, State gameState, ITurnHandler turnHandler, IGameHandler gameHandler)
+    public InProgressState(
+        GameContext context,
+        State gameState,
+        ITurnHandler turnHandler,
+        IGameHandler gameHandler
+    )
     {
+        Console.WriteLine("InProgressState: Initialized");
         _context = context;
         _gameState = gameState;
         _turnHandler = turnHandler;
@@ -30,24 +36,15 @@ public class InProgressState : IGameState
 
     public async Task EndTurn(string playerName)
     {
-        Console.WriteLine($"InProgressState: {playerName} ended their turn.");
+        Console.WriteLine($"InProgressState: EndTurn called by {playerName}");
         await _turnHandler.TryEndTurn(playerName);
-
-        // Check if game ended after turn resolution
-        var player1 = _gameState.Players[0];
-        var player2 = _gameState.Players[1];
-
-        if (player1.Health <= 0 || player2.Health <= 0)
-        {
-            var winner = player1.Health > 0 ? player1.Name : player2.Name;
-            await FinishGame(winner);
-        }
     }
 
     public async Task FinishGame(string winnerName)
     {
-        Console.WriteLine($"InProgressState: Game finished! Winner: {winnerName}");
-        await _gameHandler.FinishGame(_gameState.Players.First(p => p.Name == winnerName));
+        Console.WriteLine($"InProgressState: FinishGame called. Winner: {winnerName}");
+        var winner = _gameState.Players.First(p => p.Name == winnerName);
+        await _gameHandler.FinishGame(winner);
         _context.SetState(_context.GameFinishedState);
     }
 }
