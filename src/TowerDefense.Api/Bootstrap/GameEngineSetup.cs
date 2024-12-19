@@ -1,4 +1,5 @@
 using TowerDefense.Api.GameLogic.Handlers;
+using TowerDefense.Api.GameLogic.Mediator;
 using TowerDefense.Api.GameLogic.Player.Memento;
 using TowerDefense.Api.Hubs;
 
@@ -8,6 +9,7 @@ namespace TowerDefense.Api.Bootstrap
     {
         public static void SetupGameEngine(this IServiceCollection serviceCollection)
         {
+            serviceCollection.AddTransient<IMediator, GameMediator>();
             serviceCollection.AddTransient<NotificationHub>();
             serviceCollection.AddTransient<INotificationHub>(serviceProvider =>
             {
