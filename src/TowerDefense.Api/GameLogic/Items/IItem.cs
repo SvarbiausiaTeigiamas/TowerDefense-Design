@@ -1,9 +1,10 @@
 using TowerDefense.Api.GameLogic.Attacks;
 using TowerDefense.Api.GameLogic.Grid;
+using TowerDefense.Api.GameLogic.Visitor;
 
 namespace TowerDefense.Api.GameLogic.Items
 {
-    public interface IItem
+    public interface IItem : IVisitableItem
     {
         string Id { get; set; }
         IItemStats Stats { get; set; }
