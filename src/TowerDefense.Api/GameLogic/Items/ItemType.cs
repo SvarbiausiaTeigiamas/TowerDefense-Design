@@ -4,8 +4,8 @@ namespace TowerDefense.Api.GameLogic.Items
     {
         Rockets,
         Shield,
-        Placeholder,
+        CompositeWeapon,
         Blank,
-        Plane,
+        Plane
     }
 }

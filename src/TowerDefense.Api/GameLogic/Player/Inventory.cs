@@ -9,6 +9,6 @@ public class Inventory : CompositeItem
     public Inventory()
     {
         Id = "Inventory";
-        ItemType = ItemType.Placeholder;
+        ItemType = ItemType.Blank;
     }
 }

@@ -1,7 +1,6 @@
 ﻿using TowerDefense.Api.GameLogic.Attacks;
 using TowerDefense.Api.GameLogic.Grid;
 using System.Collections;
-using System.Collections.Generic;
 using TowerDefense.Api.GameLogic.Visitor;
 
 namespace TowerDefense.Api.GameLogic.Items.Models;
@@ -10,10 +9,8 @@ public class CompositeItem : IItem, IEnumerable<IItem>
 {
     public string Id { get; set; } = "Composite";
     public IItemStats Stats { get; set; } = new DefaultZeroItemStats();
-    public ItemType ItemType { get; set; } = ItemType.Placeholder; // or create a new type if desired
-
+    public ItemType ItemType { get; set; } = ItemType.Blank;
     private readonly List<IItem> _children = new();
-
     public IEnumerable<IItem> Children => _children.AsReadOnly();
 
     public void Add(IItem item)
@@ -41,7 +38,6 @@ public class CompositeItem : IItem, IEnumerable<IItem>
             );
             return null;
         }
-
         var child = _children[index];
         Console.WriteLine(
             $"[CompositeItem] GetChild: Retrieved item '{child.Id}' from composite '{Id}' at index {index}."

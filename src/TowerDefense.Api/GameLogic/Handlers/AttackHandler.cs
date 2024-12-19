@@ -16,10 +16,7 @@ namespace TowerDefense.Api.GameLogic.Handlers
             var directAttacks = new List<AttackDeclaration>();
             var itemAttacks = new List<AttackDeclaration>();
 
-            var items = playerArenaGrid
-                .GridItems.Where(x => x.Item is not Blank)
-                .Where(x => x.Item is not Placeholder)
-                .ToList();
+            var items = playerArenaGrid.GridItems.Where(x => x.Item is not Blank).ToList();
 
             foreach (GridItem gridItem in items)
             {
