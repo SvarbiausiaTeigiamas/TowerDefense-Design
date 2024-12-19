@@ -9,7 +9,7 @@ namespace TowerDefense.Api.Bootstrap.AutoMapper
         public InventoryMapProfile()
         {
             CreateMap<Inventory, GetInventoryItemsResponse>()
-                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Children));
         }
     }
 }

@@ -1,9 +1,14 @@
 using TowerDefense.Api.GameLogic.Items;
+using System.Collections.Generic;
+using TowerDefense.Api.GameLogic.Items.Models;
 
-namespace TowerDefense.Api.GameLogic.Player
+namespace TowerDefense.Api.GameLogic.Player;
+
+public class Inventory : CompositeItem
 {
-    public class Inventory
+    public Inventory()
     {
-        public List<IItem> Items = new();
+        Id = "Inventory";
+        ItemType = ItemType.Blank;
     }
 }

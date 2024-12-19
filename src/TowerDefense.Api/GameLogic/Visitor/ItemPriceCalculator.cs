@@ -10,10 +10,10 @@ namespace TowerDefense.Api.GameLogic.Visitor
             blank.Stats.Price = blank.Stats.Damage * 2;
         }
 
-        public void Visit(Placeholder placeholder)
+        public void Visit(CompositeWeapon compositeWeapon)
         {
-            // Calculate price for placeholder item
-            placeholder.Stats.Price = (int)(placeholder.Stats.Damage * 1.5);
+            // Calculate price for compositeWeapon item
+            compositeWeapon.Stats.Price = (int)(compositeWeapon.Stats.Damage * 1.5 + 50);
         }
 
         public void Visit(Rockets rockets)
