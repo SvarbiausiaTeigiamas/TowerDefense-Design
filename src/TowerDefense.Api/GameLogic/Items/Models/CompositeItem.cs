@@ -2,6 +2,7 @@
 using TowerDefense.Api.GameLogic.Grid;
 using System.Collections;
 using System.Collections.Generic;
+using TowerDefense.Api.GameLogic.Visitor;
 
 namespace TowerDefense.Api.GameLogic.Items.Models;
 
@@ -74,5 +75,10 @@ public class CompositeItem : IItem, IEnumerable<IItem>
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
+    }
+
+    public void Accept(IItemVisitor visitor)
+    {
+        throw new NotImplementedException();
     }
 }
