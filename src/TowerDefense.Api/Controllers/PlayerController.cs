@@ -77,21 +77,28 @@ namespace TowerDefense.Api.Controllers
             var player = _playerHandler.GetPlayer(request.PlayerName);
 
             var inventory = player.Inventory;
-            var requestedItem = inventory.Items.FirstOrDefault(x =>
-                x.Id == request.InventoryItemId
+            var requestedItem = inventory.Children.FirstOrDefault(
+                x => x.Id == request.InventoryItemId
             );
 
             if (requestedItem == null)
             {
-                return Ok();
+                return Ok(new { Message = "Item not found in inventory." });
             }
 
             var playersGridItems = player.ArenaGrid.GridItems;
-            var selectedGridItem = playersGridItems[request.GridItemId.Value];
+            var selectedGridItem = playersGridItems.FirstOrDefault(
+                g => g.Id == request.GridItemId.Value
+            );
 
-            inventory.Items.Remove(requestedItem);
+            if (selectedGridItem == null)
+            {
+                return BadRequest(new { Message = "Invalid GridItemId." });
+            }
+
+            inventory.Remove(requestedItem); // Use Remove method
             selectedGridItem.Item = requestedItem;
-            return Ok();
+            return Ok(new { Message = "Item placed successfully." });
         }
 
         [HttpPost("command")]

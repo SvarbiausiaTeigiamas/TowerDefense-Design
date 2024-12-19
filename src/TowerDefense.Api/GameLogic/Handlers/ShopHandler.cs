@@ -29,12 +29,12 @@ namespace TowerDefense.Api.GameLogic.Handlers
         public bool TryBuyItem(string playerName, string identifier)
         {
             var player = _gameState.Players.First(player => player.Name == playerName);
-            var item = player.Shop.Items.First(item => item.Id == identifier);
+            var item = player.Shop.Items.FirstOrDefault(item => item.Id == identifier);
 
             if (item == null)
                 return false;
 
-            var isAbleToAfford = item.Stats.Price < player.Money;
+            var isAbleToAfford = item.Stats.Price <= player.Money;
             if (!isAbleToAfford)
                 return false;
 
@@ -42,7 +42,7 @@ namespace TowerDefense.Api.GameLogic.Handlers
 
             var inventoryItem = ItemHelpers.CreateItemByType(item.ItemType);
             inventoryItem.Id = Guid.NewGuid().ToString();
-            player.Inventory.Items.Add(inventoryItem);
+            player.Inventory.Add(inventoryItem); // Use Add method from CompositeItem
 
             return true;
         }
