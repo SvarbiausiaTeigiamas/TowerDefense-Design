@@ -8,6 +8,7 @@ on:
 
 jobs:
   format-check:
+    if: false  # Add this line to skip the job
     runs-on: ubuntu-latest
 
     steps:

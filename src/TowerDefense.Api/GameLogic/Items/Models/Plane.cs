@@ -1,9 +1,10 @@
 using TowerDefense.Api.GameLogic.Attacks;
 using TowerDefense.Api.GameLogic.Grid;
+using TowerDefense.Api.GameLogic.Visitor;
 
 namespace TowerDefense.Api.GameLogic.Items.Models
 {
-    public class Plane : IItem
+    public class Plane : IItem, IVisitableItem
     {
         public string Id { get; set; } = nameof(Plane);
         public ItemType ItemType { get; set; } = ItemType.Plane;
@@ -23,6 +24,11 @@ namespace TowerDefense.Api.GameLogic.Items.Models
                 GridItemId = x,
                 Damage = Stats.Damage,
             });
+        }
+
+        public void Accept(IItemVisitor visitor)
+        {
+            visitor.Visit(this);
         }
     }
 }

@@ -1,5 +1,6 @@
 using TowerDefense.Api.GameLogic.GameState;
 using TowerDefense.Api.GameLogic.Grid;
+using TowerDefense.Api.GameLogic.Mediator;
 using TowerDefense.Api.GameLogic.PerkStorage;
 using TowerDefense.Api.GameLogic.Player;
 using TowerDefense.Api.GameLogic.Player.Memento;
@@ -13,16 +14,18 @@ namespace TowerDefense.Api.GameLogic.Handlers
         private readonly State _gameState;
         private readonly INotificationHub _notificationHub;
         private readonly ICareTaker _caretaker;
+        private readonly IMediator _mediator;
         private readonly PlayerSetupHandler _playerSetupChain;
 
-        public InitialGameSetupHandler(INotificationHub notificationHub, ICareTaker caretaker)
+        public InitialGameSetupHandler(INotificationHub notificationHub, ICareTaker caretaker, IMediator mediator)
         {
             _gameState = GameOriginator.GameState;
             _notificationHub = notificationHub;
             _caretaker = caretaker;
+            _mediator = mediator;
 
             // Initialize the chain
-            var addPlayerHandler = new AddPlayerHandler(_gameState);
+            var addPlayerHandler = new AddPlayerHandler(_gameState, _mediator);
             var arenaGridHandler = new ArenaGridSetupHandler(_gameState);
             var shopHandler = new ShopSetupHandler(_gameState);
             var perkStorageHandler = new PerkStorageSetupHandler(_gameState);
@@ -68,7 +71,7 @@ namespace TowerDefense.Api.GameLogic.Handlers
         public IPlayer AddPlayerToGame(string playerName)
         {
             var newPlayer = new FirstLevelPlayer { Name = playerName };
-            return new AddPlayerHandler(_gameState).Handle(newPlayer);
+            return new AddPlayerHandler(_gameState, _mediator).Handle(newPlayer);
         }
 
         public void SetArenaGridForPlayer(IPlayer player)
