@@ -1,6 +1,7 @@
 using TowerDefense.Api.GameLogic.GameState;
 using TowerDefense.Api.GameLogic.Items;
 using TowerDefense.Api.GameLogic.Shop;
+using TowerDefense.Api.GameLogic.Visitor;
 
 namespace TowerDefense.Api.GameLogic.Handlers
 {
@@ -33,6 +34,9 @@ namespace TowerDefense.Api.GameLogic.Handlers
 
             if (item == null)
                 return false;
+
+            var priceCalculator = new ItemPriceCalculator();
+            item.Accept(priceCalculator);
 
             var isAbleToAfford = item.Stats.Price < player.Money;
             if (!isAbleToAfford)
