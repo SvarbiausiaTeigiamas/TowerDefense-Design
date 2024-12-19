@@ -7,6 +7,7 @@ namespace TowerDefense.Api.GameLogic.GameState
     {
         private readonly GameContext _context;
         private readonly State _gameState;
+        private int _playerCount;
 
         public WaitingForPlayersState(GameContext context, State gameState)
         {
@@ -18,14 +19,9 @@ namespace TowerDefense.Api.GameLogic.GameState
         public void AddPlayer(string playerName)
         {
             Console.WriteLine(
-                $"WaitingForPlayersState: A new player '{playerName}' is now in the game. ActivePlayers: {_gameState.ActivePlayers}"
+                $"WaitingForPlayersState: A new player '{playerName}' is now in the game."
             );
-            if (_gameState.ActivePlayers == Constants.TowerDefense.MaxNumberOfPlayers)
-            {
-                Console.WriteLine(
-                    "WaitingForPlayersState: Max players reached. Ready to transition to InProgressState when TryStartGame is called."
-                );
-            }
+            _playerCount++;
         }
 
         public Task TryStartGame()
@@ -33,7 +29,7 @@ namespace TowerDefense.Api.GameLogic.GameState
             Console.WriteLine(
                 "WaitingForPlayersState: TryStartGame called. Checking if we can transition..."
             );
-            if (_gameState.ActivePlayers == Constants.TowerDefense.MaxNumberOfPlayers)
+            if (_playerCount == Constants.TowerDefense.MaxNumberOfPlayers)
             {
                 Console.WriteLine(
                     "WaitingForPlayersState: Conditions met, transitioning to InProgressState..."
