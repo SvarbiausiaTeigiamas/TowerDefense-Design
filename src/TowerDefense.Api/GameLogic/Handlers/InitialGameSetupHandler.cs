@@ -42,7 +42,9 @@ namespace TowerDefense.Api.GameLogic.Handlers
         public IPlayer AddNewPlayer(string playerName)
         {
             var newPlayer = new FirstLevelPlayer { Name = playerName };
-            return _playerSetupChain.Handle(newPlayer);
+            var player = _playerSetupChain.Handle(newPlayer);
+
+            return player;
         }
 
         public void SetConnectionIdForPlayer(string playerName, string connectionId)
