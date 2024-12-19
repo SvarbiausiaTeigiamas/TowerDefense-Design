@@ -31,7 +31,7 @@ namespace TowerDefense.Api.GameLogic.Items
                 ItemType.Plane => new Plane(),
                 ItemType.Rockets => new Rockets(),
                 ItemType.Shield => new Shield(),
-                ItemType.Placeholder => new Placeholder(),
+                ItemType.CompositeWeapon => new CompositeWeapon(),
                 _ => throw new ArgumentOutOfRangeException(),
             };
         }
@@ -59,10 +59,8 @@ namespace TowerDefense.Api.GameLogic.Items
             int rowId
         )
         {
-            return arenaGrid
-                .GridItems.Where(x =>
-                    (int)(x.Id / Constants.TowerDefense.MaxGridGridItemsInRow) == rowId
-                )
+            return arenaGrid.GridItems
+                .Where(x => (int)(x.Id / Constants.TowerDefense.MaxGridGridItemsInRow) == rowId)
                 .Select(x => new ExtrinsicFlyweight { Id = x.Id, ItemType = x.ItemType })
                 .ToList();
         }
@@ -93,7 +91,7 @@ namespace TowerDefense.Api.GameLogic.Items
                 return false;
 
             var itemType = gridItem.ItemType;
-            return itemType != ItemType.Blank && itemType != ItemType.Placeholder;
+            return itemType != ItemType.Blank && itemType != ItemType.CompositeWeapon;
         }
     }
 }

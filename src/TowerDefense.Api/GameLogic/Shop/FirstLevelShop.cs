@@ -6,6 +6,6 @@ namespace TowerDefense.Api.GameLogic.Shop
     public class FirstLevelShop : IShop
     {
         public IEnumerable<IItem> Items =>
-            new List<IItem> { new Rockets(), new Shield(), new Plane() };
+            new List<IItem> { new Rockets(), new Shield(), new Plane(), new CompositeWeapon() };
     }
 }

@@ -38,7 +38,7 @@ namespace TowerDefense.Api.GameLogic.Handlers
             var priceCalculator = new ItemPriceCalculator();
             item.Accept(priceCalculator);
 
-            var isAbleToAfford = item.Stats.Price < player.Money;
+            var isAbleToAfford = item.Stats.Price <= player.Money;
             if (!isAbleToAfford)
                 return false;
 
@@ -46,7 +46,7 @@ namespace TowerDefense.Api.GameLogic.Handlers
 
             var inventoryItem = FlyweightFactory.GetItem(item.ItemType);
             inventoryItem.Id = Guid.NewGuid().ToString();
-            player.Inventory.Items.Add(inventoryItem);
+            player.Inventory.Add(inventoryItem); // Use Add method from CompositeItem
 
             return true;
         }
